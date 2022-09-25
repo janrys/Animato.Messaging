@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>Animato autorizační služba</title>
+</head>
+<body>
+  <h1>ANIMATO SSO!  Uživatel: ***username***</h1>
+
+  <form method="post" action="/authorize/interactive">
+    <input name="redirectUrl" type="hidden" value="***redirectUrl***" />
+
+    ***passwordblockstart***
+    <label>User name</label>
+    <input name="userName" />
+    <label>Password</label>
+    <input name="password" />
+    <button type="submit" name="action" value="login">Login</button>
+    ***passwordblockend***
+
+    ***totpblockstart***
+    <label>One-time code</label>
+    <input name="qrCode" />
+    <button type="submit" name="action" value="validateQrCode">Validate QR code</button>
+    ***totpblockend***
+
+    <button type="submit" name="action" value="logout">Logout</button>
+  </form>
+</body>
+</html>
