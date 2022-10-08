@@ -2,9 +2,9 @@ namespace Animato.Messaging.Infrastructure.Services.Messaging;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
-using Animato.Sso.Application.Common.Interfaces;
-using Animato.Sso.Application.Common.Logging;
-using Animato.Sso.Domain.Common;
+using Animato.Messaging.Application.Common.Interfaces;
+using Animato.Messaging.Application.Common.Logging;
+using Animato.Messaging.Domain.Common;
 using Microsoft.Extensions.Logging;
 
 public class LoggingDomainEventService : IDomainEventService

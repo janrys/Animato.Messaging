@@ -24,7 +24,7 @@
     <PackageReference Include="Microsoft.Extensions.Http" Version="6.0.0" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Animato.Sso.Application\Animato.Sso.Application.csproj" />
+    <ProjectReference Include="..\Animato.Messaging.Application\Animato.Messaging.Application.csproj" />
   </ItemGroup>
 
   

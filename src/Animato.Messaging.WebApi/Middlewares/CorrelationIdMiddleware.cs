@@ -1,6 +1,6 @@
 namespace Animato.Messaging.WebApi.Middlewares;
 
-using Animato.Sso.Application.Common;
+using Animato.Messaging.Application.Common;
 
 public class CorrelationIdMiddleware
 {

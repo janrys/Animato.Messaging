@@ -34,6 +34,5 @@
 
 	<ItemGroup>
 	  <ProjectReference Include="..\Animato.Messaging.Domain\Animato.Messaging.Domain.csproj" />
-	  <ProjectReference Include="..\Animato.Sso.Domain\Animato.Sso.Domain.csproj" />
 	</ItemGroup>
 </Project>

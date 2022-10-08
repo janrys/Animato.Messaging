@@ -1,6 +1,5 @@
 namespace Animato.Messaging.Application.Security;
 using System.Security.Claims;
-using Animato.Sso.Domain.Entities;
 
 public static class ClaimsPrincipalExtensions
 {
@@ -11,15 +10,15 @@ public static class ClaimsPrincipalExtensions
         => principal.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
 
-    public static UserId GetUserId(this ClaimsPrincipal principal)
+    public static string GetUserId(this ClaimsPrincipal principal)
     {
         var claimUserId = principal.FindFirst(ClaimTypes.Sid)?.Value;
 
         if (string.IsNullOrEmpty(claimUserId) || !Guid.TryParse(claimUserId, out var userId))
         {
-            return UserId.Empty;
+            return "";
         }
 
-        return new UserId(userId);
+        return userId.ToString();
     }
 }

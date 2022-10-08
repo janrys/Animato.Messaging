@@ -8,7 +8,6 @@ using Animato.Messaging.Application.Common.Logging;
 using Animato.Messaging.Application.Exceptions;
 using Animato.Messaging.Application.Features.Queues.Contracts;
 using Animato.Messaging.Domain.Entities;
-using Animato.Sso.Application.Common.Logging;
 using AutoMapper;
 using FluentValidation;
 using MediatR;

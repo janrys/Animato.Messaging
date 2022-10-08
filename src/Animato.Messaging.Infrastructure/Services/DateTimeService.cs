@@ -1,5 +1,6 @@
 namespace Animato.Messaging.Infrastructure.Services;
-using Animato.Sso.Application.Common.Interfaces;
+
+using Animato.Messaging.Application.Common.Interfaces;
 
 public class DateTimeService : IDateTimeService
 {
@@ -8,4 +9,6 @@ public class DateTimeService : IDateTimeService
     public DateTime UtcNow => DateTime.UtcNow;
 
     public DateTimeOffset UtcNowOffset => DateTimeOffset.UtcNow;
+
+    public DateTimeOffset NowOffset => DateTimeOffset.Now;
 }

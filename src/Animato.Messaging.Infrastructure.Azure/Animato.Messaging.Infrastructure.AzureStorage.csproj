@@ -23,6 +23,6 @@
     <PackageReference Include="System.Linq.Async" Version="6.0.1" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Animato.Sso.Application\Animato.Sso.Application.csproj" />
+    <ProjectReference Include="..\Animato.Messaging.Application\Animato.Messaging.Application.csproj" />
   </ItemGroup>
 </Project>

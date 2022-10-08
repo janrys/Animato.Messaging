@@ -29,10 +29,6 @@ public static class DependencyInjection
         services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehaviour<,>));
         services.AddTransient(typeof(IPipelineBehavior<,>), typeof(PerformanceBehaviour<,>));
         services.AddSingleton<IAuthorizationService, StaticMapAuthorizationService>();
-        services.AddSingleton<IPasswordFactory, PasswordFactory>();
-        services.AddSingleton<IClaimFactory, ClaimFactory>();
-        services.AddSingleton<ITokenFactory, TokenFactory>();
-        services.AddSingleton<ICertificateManager, LocalFileCertificateManager>();
 
         return services;
     }

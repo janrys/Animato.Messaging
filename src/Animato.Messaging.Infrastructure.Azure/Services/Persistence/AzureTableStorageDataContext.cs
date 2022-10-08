@@ -3,8 +3,8 @@ namespace Animato.Messaging.Infrastructure.AzureStorage.Services.Persistence;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
-using Animato.Sso.Application.Common.Logging;
-using Animato.Sso.Application.Exceptions;
+using Animato.Messaging.Application.Common.Logging;
+using Animato.Messaging.Application.Exceptions;
 using Azure;
 using Azure.Data.Tables;
 using Microsoft.Extensions.Logging;
@@ -20,17 +20,9 @@ public class AzureTableStorageDataContext
     public const int MAX_PER_PAGE = 100;
     private bool wasTableCheckOk = false;
 
-    public TableClient Users { get; private set; }
-    public TableClient Applications { get; private set; }
-    public TableClient ApplicationRoles { get; private set; }
-    public TableClient AuthorizationCodes { get; private set; }
-    public TableClient Tokens { get; private set; }
-    public TableClient UserApplicationRoles { get; private set; }
-    public TableClient Scopes { get; private set; }
-    public TableClient Claims { get; private set; }
-    public TableClient ClaimScopes { get; private set; }
-    public TableClient UserClaims { get; private set; }
-    public TableClient ApplicationScopes { get; private set; }
+    public TableClient Queues { get; private set; }
+    public TableClient Templates { get; private set; }
+
     public AzureTableStorageDataContext(AzureTableStorageOptions options, ILogger<AzureTableStorageDataContext> logger)
     {
         this.options = options ?? throw new ArgumentNullException(nameof(options));
@@ -46,17 +38,8 @@ public class AzureTableStorageDataContext
             return wasTableCheckOk;
         }
 
-        Users = await EnsureTableExists(options.UsersTable, cancellationToken);
-        Applications = await EnsureTableExists(options.ApplicationsTable, cancellationToken);
-        ApplicationRoles = await EnsureTableExists(options.ApplicationRolesTable, cancellationToken);
-        AuthorizationCodes = await EnsureTableExists(options.AuthorizationCodesTable, cancellationToken);
-        Tokens = await EnsureTableExists(options.TokensTable, cancellationToken);
-        UserApplicationRoles = await EnsureTableExists(options.UserApplicationRolesTable, cancellationToken);
-        Scopes = await EnsureTableExists(options.ScopesTable, cancellationToken);
-        Claims = await EnsureTableExists(options.ClaimsTable, cancellationToken);
-        ClaimScopes = await EnsureTableExists(options.ClaimScopesTable, cancellationToken);
-        UserClaims = await EnsureTableExists(options.UserClaimsTable, cancellationToken);
-        ApplicationScopes = await EnsureTableExists(options.ApplicationScopesTable, cancellationToken);
+        Queues = await EnsureTableExists(options.QueuesTable, cancellationToken);
+        Templates = await EnsureTableExists(options.TemplatesTable, cancellationToken);
 
         wasTableCheckOk = true;
         return wasTableCheckOk;

@@ -1,7 +1,7 @@
 namespace Animato.Messaging.WebApi.Extensions;
 
-using Animato.Sso.Application.Exceptions;
-using Animato.Sso.Domain.Exceptions;
+using Animato.Messaging.Application.Exceptions;
+using Animato.Messaging.Domain.Exceptions;
 using Hellang.Middleware.ProblemDetails;
 
 public static class ProblemDetailsOptionsExtensions

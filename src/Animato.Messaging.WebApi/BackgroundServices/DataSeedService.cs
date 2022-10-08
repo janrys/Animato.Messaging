@@ -2,8 +2,8 @@ namespace Animato.Messaging.WebApi.BackgroundServices;
 
 using System.Threading;
 using System.Threading.Tasks;
-using Animato.Sso.Application.Common.Interfaces;
-using Animato.Sso.Application.Common.Logging;
+using Animato.Messaging.Application.Common.Interfaces;
+using Animato.Messaging.Application.Common.Logging;
 
 public class DataSeedService : BackgroundService
 {

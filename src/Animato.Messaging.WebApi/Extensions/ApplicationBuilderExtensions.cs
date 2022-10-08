@@ -1,6 +1,6 @@
 namespace Animato.Messaging.WebApi.Extensions;
 
-using Animato.Sso.Application.Common;
+using Animato.Messaging.Application.Common;
 using HealthChecks.UI.Client;
 using Hellang.Middleware.ProblemDetails;
 using Microsoft.ApplicationInsights.Extensibility;

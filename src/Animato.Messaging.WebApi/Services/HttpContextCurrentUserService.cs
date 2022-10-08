@@ -1,7 +1,7 @@
 namespace Animato.Messaging.WebApi.Services;
 
 using System.Security.Claims;
-using Animato.Sso.Application.Common.Interfaces;
+using Animato.Messaging.Application.Common.Interfaces;
 
 public class HttpContextCurrentUserService : ICurrentUserService
 {

@@ -8,7 +8,6 @@ using Animato.Messaging.Application.Common.Logging;
 using Animato.Messaging.Application.Exceptions;
 using Animato.Messaging.Domain.Entities;
 using Animato.Messaging.Domain.Exceptions;
-using Animato.Sso.Application.Common.Logging;
 using MediatR;
 using Microsoft.Extensions.Logging;
 

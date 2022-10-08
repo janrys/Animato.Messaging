@@ -1,10 +1,10 @@
 namespace Animato.Messaging.Infrastructure.AzureStorage;
 
 using System.Reflection;
+using Animato.Messaging.Application.Common;
+using Animato.Messaging.Application.Common.Interfaces;
 using Animato.Messaging.Infrastructure.AzureStorage.Services;
 using Animato.Messaging.Infrastructure.AzureStorage.Services.Persistence;
-using Animato.Sso.Application.Common;
-using Animato.Sso.Application.Common.Interfaces;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -32,13 +32,7 @@ public static class DependencyInjection
         services.AddSingleton(azureTableOptions);
 
         services.AddSingleton<AzureTableStorageDataContext>();
-        services.AddSingleton<IUserRepository, AzureTableUserRepository>();
-        services.AddSingleton<IApplicationRepository, AzureTableApplicationRepository>();
-        services.AddSingleton<IApplicationRoleRepository, AzureTableApplicationRoleRepository>();
-        services.AddSingleton<IAuthorizationCodeRepository, AzureTableAuthorizationCodeRepository>();
-        services.AddSingleton<ITokenRepository, AzureTableTokenRepository>();
-        services.AddSingleton<IScopeRepository, AzureTableScopeRepository>();
-        services.AddSingleton<IClaimRepository, AzureTableClaimRepository>();
+        services.AddSingleton<IQueueRepository, AzureTableQueueRepository>();
 
         services.AddHealthChecks().AddCheck<TableStorageHealthCheck>(TableStorageHealthCheck.Name);
         return services;

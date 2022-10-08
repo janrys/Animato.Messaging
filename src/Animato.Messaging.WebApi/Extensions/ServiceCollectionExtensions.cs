@@ -3,10 +3,10 @@ namespace Animato.Messaging.WebApi.Extensions;
 using System.Reflection;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using Animato.Messaging.Application.Common.Interfaces;
 using Animato.Messaging.WebApi.BackgroundServices;
 using Animato.Messaging.WebApi.Filters;
 using Animato.Messaging.WebApi.Services;
-using Animato.Sso.Application.Common.Interfaces;
 using FluentValidation.AspNetCore;
 using Hellang.Middleware.ProblemDetails;
 using Microsoft.AspNetCore.Authentication.Cookies;
@@ -110,7 +110,6 @@ public static class ServiceCollectionExtensions
         services.AddCustomHealtChecks();
         services.AddHttpContextAccessor();
         services.AddSingleton<ICurrentUserService, HttpContextCurrentUserService>();
-        services.AddSingleton<IMetadataService, MetadataService>();
 
         if (environment.IsDevelopment())
         {
@@ -145,7 +144,6 @@ public static class ServiceCollectionExtensions
     public static IServiceCollection AddBackgroundServices(this IServiceCollection services)
     {
         services.AddHostedService<DataSeedService>();
-        services.AddHostedService<PurgeExpiredCodesService>();
         return services;
     }
 

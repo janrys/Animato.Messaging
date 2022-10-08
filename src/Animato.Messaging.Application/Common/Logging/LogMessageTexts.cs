@@ -9,4 +9,8 @@ public static class LogMessageTexts
     public const string ErrorCreatingQueues = $"{ErrorCreating} queues";
     public const string ErrorUpdatingQueues = $"{ErrorUpdating} queues";
     public const string ErrorDeletingQueues = $"{ErrorDeleting} queues";
+    public const string ErrorLoadingTemplates = $"{ErrorLoading} templates";
+    public const string ErrorCreatingTemplates = $"{ErrorCreating} templates";
+    public const string ErrorUpdatingTemplates = $"{ErrorUpdating} templates";
+    public const string ErrorDeletingTemplates = $"{ErrorDeleting} templates";
 }

@@ -1,16 +1,15 @@
 namespace Animato.Messaging.Infrastructure.AzureStorage.Services;
 using System;
 using System.Threading.Tasks;
-using Animato.Sso.Application.Common.Interfaces;
-using Animato.Sso.Domain.Entities;
+using Animato.Messaging.Application.Common.Interfaces;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 
 public class TableStorageHealthCheck : IHealthCheck
 {
     public const string Name = "Azure table storage";
-    private readonly IScopeRepository scopeRepository;
+    private readonly IQueueRepository queueRepository;
 
-    public TableStorageHealthCheck(IScopeRepository scopeRepository) => this.scopeRepository = scopeRepository ?? throw new ArgumentNullException(nameof(scopeRepository));
+    public TableStorageHealthCheck(IQueueRepository queueRepository) => this.queueRepository = queueRepository ?? throw new ArgumentNullException(nameof(queueRepository));
 
     public async Task<HealthCheckResult> CheckHealthAsync(HealthCheckContext context, CancellationToken cancellationToken = default)
     {
@@ -18,7 +17,7 @@ public class TableStorageHealthCheck : IHealthCheck
 
         try
         {
-            var scope = await scopeRepository.GetScopeByName(Scope.All.Name, cancellationToken);
+            var scope = await queueRepository.GetAll(cancellationToken);
         }
         catch
         {

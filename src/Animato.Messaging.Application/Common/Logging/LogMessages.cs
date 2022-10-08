@@ -1,6 +1,4 @@
-namespace Animato.Sso.Application.Common.Logging;
-
-using Animato.Messaging.Application.Common.Logging;
+namespace Animato.Messaging.Application.Common.Logging;
 using Microsoft.Extensions.Logging;
 
 
@@ -44,6 +42,18 @@ public static partial class LogMessages
 
     [LoggerMessage(20004, LogLevel.Error, LogMessageTexts.ErrorDeletingQueues)]
     public static partial void QueuesDeletingError(this ILogger logger, Exception exception);
+
+    [LoggerMessage(20005, LogLevel.Error, LogMessageTexts.ErrorLoadingTemplates)]
+    public static partial void TemplatesLoadingError(this ILogger logger, Exception exception);
+
+    [LoggerMessage(20006, LogLevel.Error, LogMessageTexts.ErrorCreatingTemplates)]
+    public static partial void TemplatesCreatingError(this ILogger logger, Exception exception);
+
+    [LoggerMessage(20007, LogLevel.Error, LogMessageTexts.ErrorUpdatingTemplates)]
+    public static partial void TemplatesUpdatingError(this ILogger logger, Exception exception);
+
+    [LoggerMessage(20008, LogLevel.Error, LogMessageTexts.ErrorDeletingTemplates)]
+    public static partial void TemplatesDeletingError(this ILogger logger, Exception exception);
 
     /* CRITICAL >= 30000  */
 

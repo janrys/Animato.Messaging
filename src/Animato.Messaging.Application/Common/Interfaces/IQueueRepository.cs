@@ -11,4 +11,5 @@ public interface IQueueRepository
     Task<Queue> Create(Queue queue, CancellationToken cancellationToken);
     Task<Queue> Update(Queue queue, CancellationToken cancellationToken);
     Task Delete(QueueId queueId, CancellationToken cancellationToken);
+    Task Clear(CancellationToken cancellationToken);
 }

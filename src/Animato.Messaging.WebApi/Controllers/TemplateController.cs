@@ -3,6 +3,9 @@ namespace Animato.Messaging.WebApi.Controllers;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Animato.Messaging.Domain.Entities;
+using Animato.Messaging.Application.Features.Templates;
+using Animato.Messaging.Application.Features.Templates.Contracts;
+using Animato.Messaging.Application.Features.Queues;
 
 [ProducesResponseType(StatusCodes.Status400BadRequest)]
 [ProducesResponseType(StatusCodes.Status500InternalServerError)]
@@ -74,7 +77,7 @@ public class TemplateController : ApiControllerBase
             return BadRequest($"{nameof(template)} must have a value");
         }
 
-        var command = new CreateTemplateCommand(template, GetUser());
+        var command = new CreateDocumentTemplateCommand(template, GetUser());
         var createdTemplate = await Send(command, cancellationToken);
         return Ok(createdTemplate);
     }
@@ -110,7 +113,7 @@ public class TemplateController : ApiControllerBase
             return BadRequest($"{nameof(template)} must have a value");
         }
 
-        var command = new UpdateTemplateCommand(documentTemplateId, template, GetUser());
+        var command = new UpdateDocumentTemplateCommand(documentTemplateId, template, GetUser());
         var updatedTemplate = await Send(command, cancellationToken);
         return Ok(updatedTemplate);
     }
@@ -140,7 +143,7 @@ public class TemplateController : ApiControllerBase
             return BadRequest($"{nameof(id)} has a wrong format '{id}'");
         }
 
-        var command = new DeleteTemplateCommand(documentTemplateId, GetUser());
+        var command = new DeleteDocumentTemplateCommand(documentTemplateId, GetUser());
         await Send(command, cancellationToken);
         return Ok();
     }

@@ -1,5 +1,6 @@
 namespace Animato.Messaging.Infrastructure.Services;
-using Animato.Sso.Application.Common.Interfaces;
+
+using Animato.Messaging.Application.Common.Interfaces;
 
 public class StaticDateTimeService : IDateTimeService
 {
@@ -12,4 +13,6 @@ public class StaticDateTimeService : IDateTimeService
     public DateTime UtcNow => value.ToUniversalTime();
 
     public DateTimeOffset UtcNowOffset => UtcNow;
+
+    public DateTimeOffset NowOffset => Now;
 }

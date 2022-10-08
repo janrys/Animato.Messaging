@@ -1,5 +1,6 @@
 namespace Animato.Messaging.Application.Common.Interfaces;
-using Animato.Sso.Domain.Common;
+
+using Animato.Messaging.Domain.Common;
 
 public interface IDomainEventService
 {
