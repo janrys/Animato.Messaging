@@ -6,7 +6,8 @@ using Animato.Messaging.Domain.Entities;
 
 public interface IQueueRepository
 {
-    Task<IEnumerable<Queue>> GetAll(CancellationToken cancellationToken);
+    Task<IEnumerable<Queue>> FindAll(CancellationToken cancellationToken);
+    Task<Queue> FindById(QueueId queueId, CancellationToken cancellationToken);
     Task<Queue> GetById(QueueId queueId, CancellationToken cancellationToken);
     Task<Queue> Create(Queue queue, CancellationToken cancellationToken);
     Task<Queue> Update(Queue queue, CancellationToken cancellationToken);

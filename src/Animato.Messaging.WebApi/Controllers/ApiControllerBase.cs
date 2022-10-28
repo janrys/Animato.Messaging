@@ -10,8 +10,8 @@ public class ApiControllerBase : ControllerBase
 {
     public ISender Mediator { get; set; }
     public ApiControllerBase(ISender mediator) => Mediator = mediator ?? throw new ArgumentNullException(nameof(mediator));
-    public ClaimsPrincipal GetUser() => User;
-    public ClaimsPrincipal GetAnonymousUser() => null;
-    public Task<TResponse> Send<TResponse>(IRequest<TResponse> request, CancellationToken cancellationToken = default)
+    protected ClaimsPrincipal GetUser() => User;
+    protected ClaimsPrincipal GetAnonymousUser() => null;
+    protected Task<TResponse> Send<TResponse>(IRequest<TResponse> request, CancellationToken cancellationToken = default)
         => Mediator.Send(request, cancellationToken);
 }

@@ -17,4 +17,5 @@ public class InMemoryDataContext
 
     public List<Queue> Queues { get; set; } = new List<Queue>();
     public List<DocumentTemplate> Templates { get; set; } = new List<DocumentTemplate> { };
+    public List<DocumentTemplateContent> TemplateContents { get; set; } = new List<DocumentTemplateContent> { };
 }

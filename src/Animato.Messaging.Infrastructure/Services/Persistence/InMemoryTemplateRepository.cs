@@ -1,6 +1,7 @@
 namespace Animato.Messaging.Infrastructure.Services.Persistence;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -13,6 +14,7 @@ using Microsoft.Extensions.Logging;
 public class InMemoryTemplateRepository : ITemplateRepository
 {
     private readonly List<DocumentTemplate> templates;
+    private readonly List<DocumentTemplateContent> templateContents;
     private readonly ILogger<InMemoryTemplateRepository> logger;
 
     public InMemoryTemplateRepository(InMemoryDataContext dataContext, ILogger<InMemoryTemplateRepository> logger)
@@ -23,10 +25,11 @@ public class InMemoryTemplateRepository : ITemplateRepository
         }
 
         templates = dataContext.Templates;
+        templateContents = dataContext.TemplateContents;
         this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
     }
 
-    public Task<IEnumerable<DocumentTemplate>> GetAll(CancellationToken cancellationToken)
+    public Task<IEnumerable<DocumentTemplate>> FindAll(CancellationToken cancellationToken)
     {
         try
         {
@@ -39,7 +42,19 @@ public class InMemoryTemplateRepository : ITemplateRepository
         }
     }
 
-    public Task<DocumentTemplate> GetById(DocumentTemplateId templateId, CancellationToken cancellationToken)
+    public async Task<DocumentTemplate> GetById(DocumentTemplateId templateId, CancellationToken cancellationToken)
+    {
+        var template = await FindById(templateId, cancellationToken);
+
+        if (template is null)
+        {
+            throw new NotFoundException(nameof(DocumentTemplate), templateId);
+        }
+
+        return template;
+    }
+
+    public Task<DocumentTemplate> FindById(DocumentTemplateId templateId, CancellationToken cancellationToken)
     {
         try
         {
@@ -108,6 +123,7 @@ public class InMemoryTemplateRepository : ITemplateRepository
     {
         try
         {
+            templateContents.RemoveAll(c => c.Id == templateId);
             return Task.FromResult(templates.RemoveAll(a => a.Id == templateId));
         }
         catch (Exception exception)
@@ -119,8 +135,46 @@ public class InMemoryTemplateRepository : ITemplateRepository
 
     public Task Clear(CancellationToken cancellationToken)
     {
+        templateContents.Clear();
         templates.Clear();
         return Task.CompletedTask;
     }
 
+    public Task UpdateContent(DocumentTemplateId templateId, string fileName, Stream content, CancellationToken cancellationToken)
+    {
+        if (content is null)
+        {
+            throw new ArgumentNullException(nameof(content));
+        }
+
+        try
+        {
+            var storedTemplate = templateContents.FirstOrDefault(a => a.Id == templateId);
+
+            if (storedTemplate is not null)
+            {
+                templateContents.Remove(storedTemplate);
+            }
+
+            content.Position = 0;
+            var memoryStream = new MemoryStream();
+            content.CopyTo(memoryStream);
+
+            var templateContent = new DocumentTemplateContent()
+            {
+                Id = templateId,
+                FileName = fileName,
+                Content = memoryStream,
+            };
+
+            templateContents.Add(templateContent);
+
+            return Task.CompletedTask;
+        }
+        catch (Exception exception)
+        {
+            logger.QueuesUpdatingError(exception);
+            throw;
+        }
+    }
 }

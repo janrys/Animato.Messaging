@@ -119,6 +119,42 @@ public class TemplateController : ApiControllerBase
     }
 
     /// <summary>
+    /// Update document template
+    /// </summary>
+    /// <param name="id">Template id to update</param>
+    /// <param name="file">Template content</param>
+    /// <param name="cancellationToken">Cancelation token</param>
+    /// <returns>Updated template</returns>
+    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(Queue))]
+    [HttpPut("{id}/content", Name = "UpdateTemplateContent")]
+    public async Task<IActionResult> UpdateTemplateContent(string id, IFormFile file, CancellationToken cancellationToken)
+    {
+        if (string.IsNullOrEmpty(id))
+        {
+            return BadRequest($"{nameof(id)} must have a value");
+        }
+
+        if (file is null)
+        {
+            return BadRequest($"{nameof(file)} must have a value");
+        }
+
+        DocumentTemplateId documentTemplateId;
+        if (Guid.TryParse(id, out var parsedDocumentTemplateId))
+        {
+            documentTemplateId = new DocumentTemplateId(parsedDocumentTemplateId);
+        }
+        else
+        {
+            return BadRequest($"{nameof(id)} has a wrong format '{id}'");
+        }
+
+        var command = new UpdateDocumentTemplateContentCommand(documentTemplateId, file.FileName, file.OpenReadStream(), GetUser());
+        var updatedTemplate = await Send(command, cancellationToken);
+        return Ok(updatedTemplate);
+    }
+
+    /// <summary>
     /// Delete document template
     /// </summary>
     /// <param name="id">Template id to delete</param>

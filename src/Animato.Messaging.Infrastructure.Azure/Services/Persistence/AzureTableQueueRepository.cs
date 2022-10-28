@@ -30,7 +30,7 @@ public class AzureTableQueueRepository : IQueueRepository
     private Task ThrowExceptionIfTableNotExists(CancellationToken cancellationToken)
         => CheckIfTableExists(cancellationToken);
 
-    public async Task<IEnumerable<Queue>> GetAll(CancellationToken cancellationToken)
+    public async Task<IEnumerable<Queue>> FindAll(CancellationToken cancellationToken)
     {
         await ThrowExceptionIfTableNotExists(cancellationToken);
 
@@ -52,6 +52,18 @@ public class AzureTableQueueRepository : IQueueRepository
     }
 
     public async Task<Queue> GetById(QueueId queueId, CancellationToken cancellationToken)
+    {
+        var queue = await FindById(queueId, cancellationToken);
+
+        if (queue is null)
+        {
+            throw new NotFoundException(nameof(DocumentTemplate), queueId);
+        }
+
+        return queue;
+    }
+
+    public async Task<Queue> FindById(QueueId queueId, CancellationToken cancellationToken)
     {
         await ThrowExceptionIfTableNotExists(cancellationToken);
 

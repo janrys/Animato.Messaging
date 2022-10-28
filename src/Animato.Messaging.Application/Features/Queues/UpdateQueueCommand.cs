@@ -8,12 +8,13 @@ using Animato.Messaging.Application.Common.Logging;
 using Animato.Messaging.Application.Exceptions;
 using Animato.Messaging.Application.Features.Queues.Contracts;
 using Animato.Messaging.Domain.Entities;
+using Animato.Messaging.Domain.Exceptions;
 using AutoMapper;
 using FluentValidation;
 using MediatR;
 using Microsoft.Extensions.Logging;
 
-public class UpdateQueueCommand : IRequest<Queue>
+public class UpdateQueueCommand : IRequest<QueueDto>
 {
     public UpdateQueueCommand(QueueId queueId
         , CreateQueueModel queue
@@ -33,11 +34,11 @@ public class UpdateQueueCommand : IRequest<Queue>
         public UpdateQueueCommandValidator()
         {
             RuleFor(v => v.Queue).NotNull().WithMessage(v => $"{nameof(v.Queue)} must have a value");
-            RuleFor(v => v.Queue).InjectValidator();
+            RuleFor(v => v.Queue).SetValidator(new CreateQueueModelValidator());
         }
     }
 
-    public class UpdateQueueCommandHandler : IRequestHandler<UpdateQueueCommand, Queue>
+    public class UpdateQueueCommandHandler : IRequestHandler<UpdateQueueCommand, QueueDto>
     {
         private readonly IQueueRepository queueRepository;
         private readonly IMapper mapper;
@@ -52,22 +53,17 @@ public class UpdateQueueCommand : IRequest<Queue>
             this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
-        public async Task<Queue> Handle(UpdateQueueCommand request, CancellationToken cancellationToken)
+        public async Task<QueueDto> Handle(UpdateQueueCommand request, CancellationToken cancellationToken)
         {
+            var queue = await queueRepository.GetById(request.QueueId, cancellationToken);
+
             try
             {
-                var queue = await queueRepository.GetById(request.QueueId, cancellationToken);
-
-                if (queue is null)
-                {
-                    throw new NotFoundException(nameof(Queue), request.QueueId);
-                }
-
                 queue = mapper.Map(request.Queue, queue);
-                return await queueRepository.Update(queue, cancellationToken);
+                queue = await queueRepository.Update(queue, cancellationToken);
+                return mapper.Map<QueueDto>(queue);
             }
-            catch (NotFoundException) { throw; }
-            catch (Exceptions.ValidationException) { throw; }
+            catch (BaseException) { throw; }
             catch (Exception exception)
             {
                 logger.QueuesUpdatingError(exception);

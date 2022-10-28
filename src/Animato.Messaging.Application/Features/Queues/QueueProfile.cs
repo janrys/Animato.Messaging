@@ -5,5 +5,9 @@ using AutoMapper;
 
 public class QueueProfile : Profile
 {
-    public QueueProfile() => CreateMap<CreateQueueModel, Queue>();
+    public QueueProfile()
+    {
+        CreateMap<CreateQueueModel, Queue>();
+        CreateMap<Queue, QueueDto>();
+    }
 }

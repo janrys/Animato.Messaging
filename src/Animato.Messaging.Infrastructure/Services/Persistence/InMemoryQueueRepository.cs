@@ -26,7 +26,7 @@ public class InMemoryQueueRepository : IQueueRepository
         this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
     }
 
-    public Task<IEnumerable<Queue>> GetAll(CancellationToken cancellationToken)
+    public Task<IEnumerable<Queue>> FindAll(CancellationToken cancellationToken)
     {
         try
         {
@@ -39,7 +39,19 @@ public class InMemoryQueueRepository : IQueueRepository
         }
     }
 
-    public Task<Queue> GetById(QueueId queueId, CancellationToken cancellationToken)
+    public async Task<Queue> GetById(QueueId queueId, CancellationToken cancellationToken)
+    {
+        var queue = await FindById(queueId, cancellationToken);
+
+        if (queue is null)
+        {
+            throw new NotFoundException(nameof(Queue), queueId);
+        }
+
+        return queue;
+    }
+
+    public Task<Queue> FindById(QueueId queueId, CancellationToken cancellationToken)
     {
         try
         {

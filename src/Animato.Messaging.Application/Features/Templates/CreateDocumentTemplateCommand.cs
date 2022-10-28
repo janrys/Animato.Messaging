@@ -8,6 +8,7 @@ using Animato.Messaging.Application.Common.Logging;
 using Animato.Messaging.Application.Exceptions;
 using Animato.Messaging.Application.Features.Templates.Contracts;
 using Animato.Messaging.Domain.Entities;
+using Animato.Messaging.Domain.Exceptions;
 using AutoMapper;
 using FluentValidation;
 using MediatR;
@@ -29,7 +30,7 @@ public class CreateDocumentTemplateCommand : IRequest<DocumentTemplate>
         public CreateDocumentTemplateCommandValidator()
         {
             RuleFor(v => v.Template).NotNull().WithMessage(v => $"{nameof(v.Template)} must have a value");
-            RuleFor(v => v.Template).InjectValidator();
+            RuleFor(v => v.Template).SetValidator(new CreateDocumentTemplateModelValidator());
         }
     }
 
@@ -55,7 +56,7 @@ public class CreateDocumentTemplateCommand : IRequest<DocumentTemplate>
                 var template = mapper.Map<DocumentTemplate>(request.Template);
                 return await templateRepository.Create(template, cancellationToken);
             }
-            catch (Exceptions.ValidationException) { throw; }
+            catch (BaseException) { throw; }
             catch (Exception exception)
             {
                 logger.TemplatesCreatingError(exception);

@@ -7,6 +7,7 @@ using Animato.Messaging.Application.Common.Interfaces;
 using Animato.Messaging.Application.Common.Logging;
 using Animato.Messaging.Application.Exceptions;
 using Animato.Messaging.Domain.Entities;
+using Animato.Messaging.Domain.Exceptions;
 using FluentValidation;
 using MediatR;
 using Microsoft.Extensions.Logging;
@@ -42,19 +43,19 @@ public class DeleteQueueCommand : IRequest<Unit>
 
         public async Task<Unit> Handle(DeleteQueueCommand request, CancellationToken cancellationToken)
         {
+            var queue = await queueRepository.FindById(request.QueueId, cancellationToken);
+
+            if (queue is null)
+            {
+                return Unit.Value;
+            }
+
             try
             {
-                var application = await queueRepository.GetById(request.QueueId, cancellationToken);
-
-                if (application is null)
-                {
-                    return Unit.Value;
-                }
-
                 await queueRepository.Delete(request.QueueId, cancellationToken);
                 return Unit.Value;
             }
-            catch (Exceptions.ValidationException) { throw; }
+            catch (BaseException) { throw; }
             catch (Exception exception)
             {
                 logger.QueuesDeletingError(exception);

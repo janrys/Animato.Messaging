@@ -33,7 +33,7 @@ public class GetAllTemplatesQuery : IRequest<IEnumerable<DocumentTemplate>>
         {
             try
             {
-                return await templateRepository.GetAll(cancellationToken);
+                return await templateRepository.FindAll(cancellationToken);
             }
             catch (BaseException)
             {

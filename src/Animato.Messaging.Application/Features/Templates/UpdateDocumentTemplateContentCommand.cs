@@ -13,54 +13,56 @@ using FluentValidation;
 using MediatR;
 using Microsoft.Extensions.Logging;
 
-public class UpdateDocumentTemplateCommand : IRequest<DocumentTemplateDto>
+public class UpdateDocumentTemplateContentCommand : IRequest<DocumentTemplateDto>
 {
-    public UpdateDocumentTemplateCommand(DocumentTemplateId templateId
-        , CreateDocumentTemplateModel template
+    public UpdateDocumentTemplateContentCommand(DocumentTemplateId templateId
+        , string fileName
+        , Stream content
         , ClaimsPrincipal user)
     {
         TemplateId = templateId;
-        Template = template;
+        FileName = fileName;
+        Content = content;
         User = user;
     }
 
     public DocumentTemplateId TemplateId { get; }
-    public CreateDocumentTemplateModel Template { get; }
+    public string FileName { get; }
+    public Stream Content { get; }
     public ClaimsPrincipal User { get; }
 
-    public class UpdateDocumentTemplateCommandValidator : AbstractValidator<UpdateDocumentTemplateCommand>
+    public class UpdateDocumentTemplateContentCommandValidator : AbstractValidator<UpdateDocumentTemplateContentCommand>
     {
-        public UpdateDocumentTemplateCommandValidator()
+        public UpdateDocumentTemplateContentCommandValidator()
         {
             RuleFor(v => v.TemplateId).NotNull().WithMessage(v => $"{nameof(v.TemplateId)} must have a value");
-            RuleFor(v => v.Template).NotNull().WithMessage(v => $"{nameof(v.Template)} must have a value");
-            RuleFor(v => v.Template).SetValidator(new CreateDocumentTemplateModelValidator());
+            RuleFor(v => v.FileName).NotEmpty().WithMessage(v => $"{nameof(v.FileName)} must have a value");
+            RuleFor(v => v.Content).NotNull().WithMessage(v => $"{nameof(v.Content)} must have a value");
         }
     }
 
-    public class UpdateDocumentTemplateCommandHandler : IRequestHandler<UpdateDocumentTemplateCommand, DocumentTemplateDto>
+    public class UpdateDocumentTemplateContentCommandHandler : IRequestHandler<UpdateDocumentTemplateContentCommand, DocumentTemplateDto>
     {
         private readonly ITemplateRepository templateRepository;
         private readonly IMapper mapper;
-        private readonly ILogger<UpdateDocumentTemplateCommandHandler> logger;
+        private readonly ILogger<UpdateDocumentTemplateContentCommandHandler> logger;
 
-        public UpdateDocumentTemplateCommandHandler(ITemplateRepository templateRepository
+        public UpdateDocumentTemplateContentCommandHandler(ITemplateRepository templateRepository
             , IMapper mapper
-            , ILogger<UpdateDocumentTemplateCommandHandler> logger)
+            , ILogger<UpdateDocumentTemplateContentCommandHandler> logger)
         {
             this.templateRepository = templateRepository ?? throw new ArgumentNullException(nameof(templateRepository));
             this.mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
             this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
-        public async Task<DocumentTemplateDto> Handle(UpdateDocumentTemplateCommand request, CancellationToken cancellationToken)
+        public async Task<DocumentTemplateDto> Handle(UpdateDocumentTemplateContentCommand request, CancellationToken cancellationToken)
         {
             var template = await templateRepository.GetById(request.TemplateId, cancellationToken);
 
             try
             {
-                template = mapper.Map(request.Template, template);
-                template = await templateRepository.Update(template, cancellationToken);
+                await templateRepository.UpdateContent(template.Id, request.FileName, request.Content, cancellationToken);
                 return mapper.Map<DocumentTemplateDto>(template);
             }
             catch (Exceptions.ValidationException) { throw; }

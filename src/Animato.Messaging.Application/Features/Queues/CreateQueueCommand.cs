@@ -8,12 +8,13 @@ using Animato.Messaging.Application.Common.Logging;
 using Animato.Messaging.Application.Exceptions;
 using Animato.Messaging.Application.Features.Queues.Contracts;
 using Animato.Messaging.Domain.Entities;
+using Animato.Messaging.Domain.Exceptions;
 using AutoMapper;
 using FluentValidation;
 using MediatR;
 using Microsoft.Extensions.Logging;
 
-public class CreateQueueCommand : IRequest<Queue>
+public class CreateQueueCommand : IRequest<QueueDto>
 {
     public CreateQueueCommand(CreateQueueModel queue, ClaimsPrincipal user)
     {
@@ -29,11 +30,11 @@ public class CreateQueueCommand : IRequest<Queue>
         public CreateQueueCommandValidator()
         {
             RuleFor(v => v.Queue).NotNull().WithMessage(v => $"{nameof(v.Queue)} must have a value");
-            RuleFor(v => v.Queue).InjectValidator();
+            RuleFor(v => v.Queue).SetValidator(new CreateQueueModelValidator());
         }
     }
 
-    public class CreateQueueCommandHandler : IRequestHandler<CreateQueueCommand, Queue>
+    public class CreateQueueCommandHandler : IRequestHandler<CreateQueueCommand, QueueDto>
     {
         private readonly IQueueRepository queueRepository;
         private readonly IMapper mapper;
@@ -48,14 +49,15 @@ public class CreateQueueCommand : IRequest<Queue>
             this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
-        public async Task<Queue> Handle(CreateQueueCommand request, CancellationToken cancellationToken)
+        public async Task<QueueDto> Handle(CreateQueueCommand request, CancellationToken cancellationToken)
         {
             try
             {
                 var queue = mapper.Map<Queue>(request.Queue);
-                return await queueRepository.Create(queue, cancellationToken);
+                queue = await queueRepository.Create(queue, cancellationToken);
+                return mapper.Map<QueueDto>(queue);
             }
-            catch (Exceptions.ValidationException) { throw; }
+            catch (BaseException) { throw; }
             catch (Exception exception)
             {
                 logger.QueuesCreatingError(exception);

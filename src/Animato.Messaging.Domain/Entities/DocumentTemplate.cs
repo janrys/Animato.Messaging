@@ -10,3 +10,5 @@ public class DocumentTemplate
     public TargetType TargetType { get; set; }
 
 }
+
+

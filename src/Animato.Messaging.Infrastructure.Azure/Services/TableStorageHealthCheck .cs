@@ -17,7 +17,7 @@ public class TableStorageHealthCheck : IHealthCheck
 
         try
         {
-            var scope = await queueRepository.GetAll(cancellationToken);
+            var scope = await queueRepository.FindAll(cancellationToken);
         }
         catch
         {
