@@ -18,7 +18,7 @@ public class TemplateController : ApiControllerBase
     /// </summary>
     /// <param name="cancellationToken">Cancelation token</param>
     /// <returns>List of templates</returns>
-    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<DocumentTemplate>))]
+    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<DocumentTemplateDto>))]
     [HttpGet(Name = "GetTemplates")]
     public async Task<IActionResult> GetAll(CancellationToken cancellationToken)
     {
@@ -33,7 +33,7 @@ public class TemplateController : ApiControllerBase
     /// <param name="id">Queue id</param>
     /// <param name="cancellationToken">Cancelation token</param>
     /// <returns>Queue</returns>
-    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(DocumentTemplate))]
+    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(DocumentTemplateDto))]
     [HttpGet("{id}", Name = "GetTemplateById")]
     public async Task<IActionResult> GetById(string id, CancellationToken cancellationToken)
     {
@@ -68,9 +68,9 @@ public class TemplateController : ApiControllerBase
     /// <param name="template"></param>
     /// <param name="cancellationToken">Cancelation token</param>
     /// <returns>Created template</returns>
-    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(DocumentTemplate))]
+    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(DocumentTemplateDto))]
     [HttpPost(Name = "CreateTemplate")]
-    public async Task<IActionResult> CreateApplication([FromBody] CreateDocumentTemplateModel template, CancellationToken cancellationToken)
+    public async Task<IActionResult> CreateTemplate([FromBody] CreateDocumentTemplateModel template, CancellationToken cancellationToken)
     {
         if (template is null)
         {
@@ -89,7 +89,7 @@ public class TemplateController : ApiControllerBase
     /// <param name="template">Template changes</param>
     /// <param name="cancellationToken">Cancelation token</param>
     /// <returns>Updated template</returns>
-    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(Queue))]
+    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(DocumentTemplateDto))]
     [HttpPut("{id}", Name = "UpdateTemplate")]
     public async Task<IActionResult> UpdateTemplate(string id, [FromBody] CreateDocumentTemplateModel template, CancellationToken cancellationToken)
     {
@@ -125,7 +125,7 @@ public class TemplateController : ApiControllerBase
     /// <param name="file">Template content</param>
     /// <param name="cancellationToken">Cancelation token</param>
     /// <returns>Updated template</returns>
-    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(Queue))]
+    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(DocumentTemplateDto))]
     [HttpPut("{id}/content", Name = "UpdateTemplateContent")]
     public async Task<IActionResult> UpdateTemplateContent(string id, IFormFile file, CancellationToken cancellationToken)
     {
@@ -182,5 +182,51 @@ public class TemplateController : ApiControllerBase
         var command = new DeleteDocumentTemplateCommand(documentTemplateId, GetUser());
         await Send(command, cancellationToken);
         return Ok();
+    }
+
+    /// <summary>
+    /// Update document template processor
+    /// </summary>
+    /// <param name="id">Template id to update</param>
+    /// <param name="processorId"></param>
+    /// <param name="cancellationToken">Cancelation token</param>
+    /// <returns>Updated template</returns>
+    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(Queue))]
+    [HttpPut("{id}/processor/{processorId}", Name = "UpdateTemplateProcessor")]
+    public async Task<IActionResult> UpdateTemplateProcessor(string id, string processorId, CancellationToken cancellationToken)
+    {
+        if (string.IsNullOrEmpty(id))
+        {
+            return BadRequest($"{nameof(id)} must have a value");
+        }
+
+        if (string.IsNullOrEmpty(processorId))
+        {
+            return BadRequest($"{nameof(processorId)} must have a value");
+        }
+
+        DocumentTemplateId documentTemplateId;
+        if (Guid.TryParse(id, out var parsedDocumentTemplateId))
+        {
+            documentTemplateId = new DocumentTemplateId(parsedDocumentTemplateId);
+        }
+        else
+        {
+            return BadRequest($"{nameof(id)} has a wrong format '{id}'");
+        }
+
+        ProcessorId validProcessorId;
+        if (Guid.TryParse(processorId, out var parsedProcessorId))
+        {
+            validProcessorId = new ProcessorId(parsedProcessorId);
+        }
+        else
+        {
+            return BadRequest($"{nameof(id)} has a wrong format '{id}'");
+        }
+
+        var command = new UpdateDocumentTemplateProcessorCommand(documentTemplateId, validProcessorId, GetUser());
+        var updatedTemplate = await Send(command, cancellationToken);
+        return Ok(updatedTemplate);
     }
 }

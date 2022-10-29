@@ -6,12 +6,14 @@ using System.Threading.Tasks;
 using Animato.Messaging.Application.Common.Interfaces;
 using Animato.Messaging.Application.Common.Logging;
 using Animato.Messaging.Application.Exceptions;
+using Animato.Messaging.Application.Features.Templates.Contracts;
 using Animato.Messaging.Domain.Entities;
+using AutoMapper;
 using FluentValidation;
 using MediatR;
 using Microsoft.Extensions.Logging;
 
-public class GetTemplateByIdQuery : IRequest<DocumentTemplate>
+public class GetTemplateByIdQuery : IRequest<DocumentTemplateDto>
 {
     public GetTemplateByIdQuery(DocumentTemplateId templateId, ClaimsPrincipal user)
     {
@@ -28,22 +30,27 @@ public class GetTemplateByIdQuery : IRequest<DocumentTemplate>
             => RuleFor(v => v.TemplateId).NotEmpty().WithMessage(v => $"{nameof(v.TemplateId)} must have a value");
     }
 
-    public class GetTemplateByIdQueryHandler : IRequestHandler<GetTemplateByIdQuery, DocumentTemplate>
+    public class GetTemplateByIdQueryHandler : IRequestHandler<GetTemplateByIdQuery, DocumentTemplateDto>
     {
         private readonly ITemplateRepository templateRepository;
+        private readonly IMapper mapper;
         private readonly ILogger<GetTemplateByIdQueryHandler> logger;
 
-        public GetTemplateByIdQueryHandler(ITemplateRepository templateRepository, ILogger<GetTemplateByIdQueryHandler> logger)
+        public GetTemplateByIdQueryHandler(ITemplateRepository templateRepository
+            , IMapper mapper
+            , ILogger<GetTemplateByIdQueryHandler> logger)
         {
             this.templateRepository = templateRepository ?? throw new ArgumentNullException(nameof(templateRepository));
+            this.mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
             this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
-        public async Task<DocumentTemplate> Handle(GetTemplateByIdQuery request, CancellationToken cancellationToken)
+        public async Task<DocumentTemplateDto> Handle(GetTemplateByIdQuery request, CancellationToken cancellationToken)
         {
             try
             {
-                return await templateRepository.GetById(request.TemplateId, cancellationToken);
+                var template = await templateRepository.GetById(request.TemplateId, cancellationToken);
+                return mapper.Map<DocumentTemplateDto>(template);
             }
             catch (Exception exception)
             {

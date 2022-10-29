@@ -8,7 +8,6 @@ public class DocumentTemplate
     public string Name { get; set; }
     public ProcessorId ProcessorId { get; set; }
     public TargetType TargetType { get; set; }
-
 }
 
 

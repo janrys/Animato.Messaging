@@ -13,42 +13,41 @@ using FluentValidation;
 using MediatR;
 using Microsoft.Extensions.Logging;
 
-public class UpdateDocumentTemplateCommand : IRequest<DocumentTemplateDto>
+public class UpdateDocumentTemplateProcessorCommand : IRequest<DocumentTemplateDto>
 {
-    public UpdateDocumentTemplateCommand(DocumentTemplateId templateId
-        , CreateDocumentTemplateModel template
+    public UpdateDocumentTemplateProcessorCommand(DocumentTemplateId templateId
+        , ProcessorId processorId
         , ClaimsPrincipal user)
     {
         TemplateId = templateId;
-        Template = template;
+        ProcessorId = processorId;
         User = user;
     }
 
     public DocumentTemplateId TemplateId { get; }
-    public CreateDocumentTemplateModel Template { get; }
+    public ProcessorId ProcessorId { get; }
     public ClaimsPrincipal User { get; }
 
-    public class UpdateDocumentTemplateCommandValidator : AbstractValidator<UpdateDocumentTemplateCommand>
+    public class UpdateDocumentTemplateProcessorCommandValidator : AbstractValidator<UpdateDocumentTemplateProcessorCommand>
     {
-        public UpdateDocumentTemplateCommandValidator()
+        public UpdateDocumentTemplateProcessorCommandValidator()
         {
             RuleFor(v => v.TemplateId).NotNull().WithMessage(v => $"{nameof(v.TemplateId)} must have a value");
-            RuleFor(v => v.Template).NotNull().WithMessage(v => $"{nameof(v.Template)} must have a value");
-            RuleFor(v => v.Template).SetValidator(new CreateDocumentTemplateModelValidator());
+            RuleFor(v => v.ProcessorId).NotNull().WithMessage(v => $"{nameof(v.ProcessorId)} must have a value");
         }
     }
 
-    public class UpdateDocumentTemplateCommandHandler : IRequestHandler<UpdateDocumentTemplateCommand, DocumentTemplateDto>
+    public class UpdateDocumentTemplateProcessorCommandHandler : IRequestHandler<UpdateDocumentTemplateProcessorCommand, DocumentTemplateDto>
     {
         private readonly ITemplateRepository templateRepository;
         private readonly ITemplateProcessorFactory templateProcessorFactory;
         private readonly IMapper mapper;
-        private readonly ILogger<UpdateDocumentTemplateCommandHandler> logger;
+        private readonly ILogger<UpdateDocumentTemplateProcessorCommandHandler> logger;
 
-        public UpdateDocumentTemplateCommandHandler(ITemplateRepository templateRepository
+        public UpdateDocumentTemplateProcessorCommandHandler(ITemplateRepository templateRepository
             , ITemplateProcessorFactory templateProcessorFactory
             , IMapper mapper
-            , ILogger<UpdateDocumentTemplateCommandHandler> logger)
+            , ILogger<UpdateDocumentTemplateProcessorCommandHandler> logger)
         {
             this.templateRepository = templateRepository ?? throw new ArgumentNullException(nameof(templateRepository));
             this.templateProcessorFactory = templateProcessorFactory ?? throw new ArgumentNullException(nameof(templateProcessorFactory));
@@ -56,15 +55,15 @@ public class UpdateDocumentTemplateCommand : IRequest<DocumentTemplateDto>
             this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
-        public async Task<DocumentTemplateDto> Handle(UpdateDocumentTemplateCommand request, CancellationToken cancellationToken)
+        public async Task<DocumentTemplateDto> Handle(UpdateDocumentTemplateProcessorCommand request, CancellationToken cancellationToken)
         {
             var template = await templateRepository.GetById(request.TemplateId, cancellationToken);
-            var templateProcessor = templateProcessorFactory.GetProcessor(new ProcessorId(Guid.Parse(request.Template.ProcessorId)));
+            var templateProcessor = templateProcessorFactory.GetProcessor(request.ProcessorId);
             templateProcessor.ThrowExceptionIfCannotProcess(template);
 
             try
             {
-                template = mapper.Map(request.Template, template);
+                template.ProcessorId = request.ProcessorId;
                 template = await templateRepository.Update(template, cancellationToken);
                 return mapper.Map<DocumentTemplateDto>(template);
             }
@@ -76,4 +75,5 @@ public class UpdateDocumentTemplateCommand : IRequest<DocumentTemplateDto>
             }
         }
     }
+
 }

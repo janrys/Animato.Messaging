@@ -14,7 +14,7 @@ using FluentValidation;
 using MediatR;
 using Microsoft.Extensions.Logging;
 
-public class CreateDocumentTemplateCommand : IRequest<DocumentTemplate>
+public class CreateDocumentTemplateCommand : IRequest<DocumentTemplateDto>
 {
     public CreateDocumentTemplateCommand(CreateDocumentTemplateModel template, ClaimsPrincipal user)
     {
@@ -34,27 +34,34 @@ public class CreateDocumentTemplateCommand : IRequest<DocumentTemplate>
         }
     }
 
-    public class CreateDocumentTemplateCommandHandler : IRequestHandler<CreateDocumentTemplateCommand, DocumentTemplate>
+    public class CreateDocumentTemplateCommandHandler : IRequestHandler<CreateDocumentTemplateCommand, DocumentTemplateDto>
     {
         private readonly ITemplateRepository templateRepository;
+        private readonly ITemplateProcessorFactory templateProcessorFactory;
         private readonly IMapper mapper;
         private readonly ILogger<CreateDocumentTemplateCommandHandler> logger;
 
         public CreateDocumentTemplateCommandHandler(ITemplateRepository templateRepository
+            , ITemplateProcessorFactory templateProcessorFactory
             , IMapper mapper
             , ILogger<CreateDocumentTemplateCommandHandler> logger)
         {
             this.templateRepository = templateRepository ?? throw new ArgumentNullException(nameof(templateRepository));
+            this.templateProcessorFactory = templateProcessorFactory ?? throw new ArgumentNullException(nameof(templateProcessorFactory));
             this.mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
             this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
-        public async Task<DocumentTemplate> Handle(CreateDocumentTemplateCommand request, CancellationToken cancellationToken)
+        public async Task<DocumentTemplateDto> Handle(CreateDocumentTemplateCommand request, CancellationToken cancellationToken)
         {
+            var template = mapper.Map<DocumentTemplate>(request.Template);
+            var templateProcessor = templateProcessorFactory.GetProcessor(new ProcessorId(Guid.Parse(request.Template.ProcessorId)));
+            templateProcessor.ThrowExceptionIfCannotProcess(template);
+
             try
             {
-                var template = mapper.Map<DocumentTemplate>(request.Template);
-                return await templateRepository.Create(template, cancellationToken);
+                template = await templateRepository.Create(template, cancellationToken);
+                return mapper.Map<DocumentTemplateDto>(template);
             }
             catch (BaseException) { throw; }
             catch (Exception exception)

@@ -32,7 +32,7 @@ public class QueueController : ApiControllerBase
     /// <param name="id">Queue id</param>
     /// <param name="cancellationToken">Cancelation token</param>
     /// <returns>Queue</returns>
-    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(Queue))]
+    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(QueueDto))]
     [HttpGet("{id}", Name = "GetQueueById")]
     public async Task<IActionResult> GetById(string id, CancellationToken cancellationToken)
     {
@@ -67,7 +67,7 @@ public class QueueController : ApiControllerBase
     /// <param name="queue"></param>
     /// <param name="cancellationToken">Cancelation token</param>
     /// <returns>Created queue</returns>
-    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(Queue))]
+    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(QueueDto))]
     [HttpPost(Name = "CreateQueue")]
     public async Task<IActionResult> CreateApplication([FromBody] CreateQueueModel queue, CancellationToken cancellationToken)
     {
@@ -88,7 +88,7 @@ public class QueueController : ApiControllerBase
     /// <param name="queue">Queue changes</param>
     /// <param name="cancellationToken">Cancelation token</param>
     /// <returns>Updated queue</returns>
-    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(Queue))]
+    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(QueueDto))]
     [HttpPut("{id}", Name = "UpdateQueue")]
     public async Task<IActionResult> UpdateQueue(string id, [FromBody] CreateQueueModel queue, CancellationToken cancellationToken)
     {
