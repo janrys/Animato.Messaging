@@ -5,6 +5,8 @@ using Microsoft.AspNetCore.Mvc;
 using Animato.Messaging.Domain.Entities;
 using Animato.Messaging.Application.Features.Queues.Contracts;
 using Animato.Messaging.Application.Features.Queues;
+using Animato.Messaging.Application.Features.Templates.Contracts;
+using Animato.Messaging.Application.Features.Templates;
 
 [ProducesResponseType(StatusCodes.Status400BadRequest)]
 [ProducesResponseType(StatusCodes.Status500InternalServerError)]
@@ -36,18 +38,9 @@ public class QueueController : ApiControllerBase
     [HttpGet("{id}", Name = "GetQueueById")]
     public async Task<IActionResult> GetById(string id, CancellationToken cancellationToken)
     {
-        if (string.IsNullOrEmpty(id))
+        if (!TryParseAndValidateQueueId(id, out var queueId, out var actionResult))
         {
-            return BadRequest($"{nameof(id)} must have a value");
-        }
-        QueueId queueId;
-        if (Guid.TryParse(id, out var parsedQueueId))
-        {
-            queueId = new QueueId(parsedQueueId);
-        }
-        else
-        {
-            return BadRequest($"{nameof(id)} has a wrong format '{id}'");
+            return actionResult;
         }
 
         var query = new GetQueueByIdQuery(queueId, GetUser());
@@ -92,19 +85,9 @@ public class QueueController : ApiControllerBase
     [HttpPut("{id}", Name = "UpdateQueue")]
     public async Task<IActionResult> UpdateQueue(string id, [FromBody] CreateQueueModel queue, CancellationToken cancellationToken)
     {
-        if (string.IsNullOrEmpty(id))
+        if (!TryParseAndValidateQueueId(id, out var queueId, out var actionResult))
         {
-            return BadRequest($"{nameof(id)} must have a value");
-        }
-
-        QueueId queueId;
-        if (Guid.TryParse(id, out var parsedQueueId))
-        {
-            queueId = new QueueId(parsedQueueId);
-        }
-        else
-        {
-            return BadRequest($"{nameof(id)} has a wrong format '{id}'");
+            return actionResult;
         }
 
         if (queue is null)
@@ -127,23 +110,85 @@ public class QueueController : ApiControllerBase
     [HttpDelete("{id}", Name = "DeleteQueue")]
     public async Task<IActionResult> DeleteQueue(string id, CancellationToken cancellationToken)
     {
-        if (string.IsNullOrEmpty(id))
+        if (!TryParseAndValidateQueueId(id, out var queueId, out var actionResult))
         {
-            return BadRequest($"{nameof(id)} must have a value");
-        }
-
-        QueueId queueId;
-        if (Guid.TryParse(id, out var parsedQueueId))
-        {
-            queueId = new QueueId(parsedQueueId);
-        }
-        else
-        {
-            return BadRequest($"{nameof(id)} has a wrong format '{id}'");
+            return actionResult;
         }
 
         var command = new DeleteQueueCommand(queueId, GetUser());
         await Send(command, cancellationToken);
         return Ok();
+    }
+
+    /// <summary>
+    /// Get templates allowed for queue
+    /// </summary>
+    /// <param name="id">Queue id</param>
+    /// <param name="cancellationToken">Cancelation token</param>
+    /// <returns>Allowed template list</returns>
+    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<DocumentTemplateDto>))]
+    [HttpPost("{id}/template", Name = "GetTemplatesByQueue")]
+    public async Task<IActionResult> GetTemplatesByQueue(string id, CancellationToken cancellationToken)
+    {
+        if (!TryParseAndValidateQueueId(id, out var queueId, out var actionResult))
+        {
+            return actionResult;
+        }
+
+        var command = new GetTemplatesByQueueQuery(queueId, GetUser());
+        var templates = await Send(command, cancellationToken);
+        return Ok(templates);
+    }
+
+    /// <summary>
+    /// Add template to queue
+    /// </summary>
+    /// <param name="id">Queue id</param>
+    /// <param name="templateId">Template id</param>
+    /// <param name="cancellationToken">Cancelation token</param>
+    /// <returns>Allowed template list</returns>
+    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<DocumentTemplateDto>))]
+    [HttpPost("{id}/template/{templateId}", Name = "AddTemplateToQueue")]
+    public async Task<IActionResult> AddTemplateToQueue(string id, string templateId, CancellationToken cancellationToken)
+    {
+        if (!TryParseAndValidateQueueId(id, out var queueId, out var actionResult))
+        {
+            return actionResult;
+        }
+
+        if (!TryParseAndValidateTemplateId(templateId, out var templateIdValidated, out var actionResultTemplate))
+        {
+            return actionResultTemplate;
+        }
+
+        var command = new AddTemplateToQueueCommand(queueId, templateIdValidated, GetUser());
+        var templates = await Send(command, cancellationToken);
+        return Ok(templates);
+    }
+
+    /// <summary>
+    /// Remove template from queue
+    /// </summary>
+    /// <param name="id">Queue id</param>
+    /// <param name="templateId">Template id</param>
+    /// <param name="cancellationToken">Cancelation token</param>
+    /// <returns>Allowed template list</returns>
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [HttpDelete("{id}/template/{templateId}", Name = "RemoveTemplateFromQueue")]
+    public async Task<IActionResult> RemoveTemplateFromQueue(string id, string templateId, CancellationToken cancellationToken)
+    {
+        if (!TryParseAndValidateQueueId(id, out var queueId, out var actionResult))
+        {
+            return actionResult;
+        }
+
+        if (!TryParseAndValidateTemplateId(templateId, out var templateIdValidated, out var actionResultTemplate))
+        {
+            return actionResultTemplate;
+        }
+
+        var command = new RemoveTemplateFromQueueCommand(queueId, templateIdValidated, GetUser());
+        var templates = await Send(command, cancellationToken);
+        return Ok(templates);
     }
 }

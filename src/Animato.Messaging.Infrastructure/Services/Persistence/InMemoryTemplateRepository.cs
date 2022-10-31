@@ -15,6 +15,7 @@ public class InMemoryTemplateRepository : ITemplateRepository
 {
     private readonly List<DocumentTemplate> templates;
     private readonly List<DocumentTemplateContent> templateContents;
+    private readonly List<QueueTemplate> queueTemplates;
     private readonly ILogger<InMemoryTemplateRepository> logger;
 
     public InMemoryTemplateRepository(InMemoryDataContext dataContext, ILogger<InMemoryTemplateRepository> logger)
@@ -26,6 +27,7 @@ public class InMemoryTemplateRepository : ITemplateRepository
 
         templates = dataContext.Templates;
         templateContents = dataContext.TemplateContents;
+        queueTemplates = dataContext.QueueTemplates;
         this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
     }
 
@@ -37,7 +39,7 @@ public class InMemoryTemplateRepository : ITemplateRepository
         }
         catch (Exception exception)
         {
-            logger.QueuesLoadingError(exception);
+            logger.TemplatesLoadingError(exception);
             throw;
         }
     }
@@ -62,7 +64,7 @@ public class InMemoryTemplateRepository : ITemplateRepository
         }
         catch (Exception exception)
         {
-            logger.QueuesLoadingError(exception);
+            logger.TemplatesLoadingError(exception);
             throw;
         }
     }
@@ -86,7 +88,7 @@ public class InMemoryTemplateRepository : ITemplateRepository
         }
         catch (Exception exception)
         {
-            logger.QueuesCreatingError(exception);
+            logger.TemplatesCreatingError(exception);
             throw;
         }
     }
@@ -114,7 +116,7 @@ public class InMemoryTemplateRepository : ITemplateRepository
         }
         catch (Exception exception)
         {
-            logger.QueuesUpdatingError(exception);
+            logger.TemplatesUpdatingError(exception);
             throw;
         }
     }
@@ -123,18 +125,20 @@ public class InMemoryTemplateRepository : ITemplateRepository
     {
         try
         {
+            queueTemplates.RemoveAll(q => q.TemplateId == templateId);
             templateContents.RemoveAll(c => c.Id == templateId);
             return Task.FromResult(templates.RemoveAll(a => a.Id == templateId));
         }
         catch (Exception exception)
         {
-            logger.QueuesDeletingError(exception);
+            logger.TemplatesDeletingError(exception);
             throw;
         }
     }
 
     public Task Clear(CancellationToken cancellationToken)
     {
+        queueTemplates.Clear();
         templateContents.Clear();
         templates.Clear();
         return Task.CompletedTask;
@@ -173,7 +177,49 @@ public class InMemoryTemplateRepository : ITemplateRepository
         }
         catch (Exception exception)
         {
-            logger.QueuesUpdatingError(exception);
+            logger.TemplatesUpdatingError(exception);
+            throw;
+        }
+    }
+
+    public Task<IEnumerable<DocumentTemplate>> FindByQueue(QueueId queueId, CancellationToken cancellationToken)
+    {
+        try
+        {
+            return Task.FromResult(queueTemplates.Where(q => q.QueueId == queueId)
+                .Join(templates, q => q.TemplateId, t => t.Id, (qt, t) => t));
+        }
+        catch (Exception exception)
+        {
+            logger.TemplatesLoadingError(exception);
+            throw;
+        }
+    }
+
+    public Task AddToQueue(DocumentTemplateId templateId, QueueId queueId, CancellationToken cancellationToken)
+    {
+        try
+        {
+            queueTemplates.Add(new QueueTemplate() { QueueId = queueId, TemplateId = templateId });
+            return Task.CompletedTask;
+        }
+        catch (Exception exception)
+        {
+            logger.TemplatesUpdatingError(exception);
+            throw;
+        }
+    }
+
+    public Task RemoveFromQueue(DocumentTemplateId templateId, QueueId queueId, CancellationToken cancellationToken)
+    {
+        try
+        {
+            queueTemplates.RemoveAll(qt => qt.QueueId == queueId && qt.TemplateId == templateId);
+            return Task.CompletedTask;
+        }
+        catch (Exception exception)
+        {
+            logger.TemplatesUpdatingError(exception);
             throw;
         }
     }

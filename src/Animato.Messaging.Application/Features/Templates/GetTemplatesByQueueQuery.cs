@@ -13,48 +13,48 @@ using FluentValidation;
 using MediatR;
 using Microsoft.Extensions.Logging;
 
-public class GetTemplateByIdQuery : IRequest<DocumentTemplateDto>
+public class GetTemplatesByQueueQuery : IRequest<IEnumerable<DocumentTemplateDto>>
 {
-    public GetTemplateByIdQuery(DocumentTemplateId templateId, ClaimsPrincipal user)
+    public GetTemplatesByQueueQuery(QueueId queueId, ClaimsPrincipal user)
     {
-        TemplateId = templateId;
+        QueueId = queueId;
         User = user;
     }
 
-    public DocumentTemplateId TemplateId { get; }
+    public QueueId QueueId { get; }
     public ClaimsPrincipal User { get; }
 
-    public class GetTemplateByIdQueryValidator : AbstractValidator<GetTemplateByIdQuery>
+    public class GetTemplatesByQueueQueryValidator : AbstractValidator<GetTemplatesByQueueQuery>
     {
-        public GetTemplateByIdQueryValidator()
-            => RuleFor(v => v.TemplateId).NotEmpty().WithMessage(v => $"{nameof(v.TemplateId)} must have a value");
+        public GetTemplatesByQueueQueryValidator()
+            => RuleFor(v => v.QueueId).NotEmpty().WithMessage(v => $"{nameof(v.QueueId)} must have a value");
     }
 
-    public class GetTemplateByIdQueryHandler : IRequestHandler<GetTemplateByIdQuery, DocumentTemplateDto>
+    public class GetTemplatesByQueueQueryHandler : IRequestHandler<GetTemplatesByQueueQuery, IEnumerable<DocumentTemplateDto>>
     {
         private readonly ITemplateRepository templateRepository;
         private readonly IMapper mapper;
-        private readonly ILogger<GetTemplateByIdQueryHandler> logger;
+        private readonly ILogger<GetTemplatesByQueueQueryHandler> logger;
 
-        public GetTemplateByIdQueryHandler(ITemplateRepository templateRepository
+        public GetTemplatesByQueueQueryHandler(ITemplateRepository templateRepository
             , IMapper mapper
-            , ILogger<GetTemplateByIdQueryHandler> logger)
+            , ILogger<GetTemplatesByQueueQueryHandler> logger)
         {
             this.templateRepository = templateRepository ?? throw new ArgumentNullException(nameof(templateRepository));
             this.mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
             this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
-        public async Task<DocumentTemplateDto> Handle(GetTemplateByIdQuery request, CancellationToken cancellationToken)
+        public async Task<IEnumerable<DocumentTemplateDto>> Handle(GetTemplatesByQueueQuery request, CancellationToken cancellationToken)
         {
             try
             {
-                var template = await templateRepository.GetById(request.TemplateId, cancellationToken);
-                return mapper.Map<DocumentTemplateDto>(template);
+                var templates = await templateRepository.FindByQueue(request.QueueId, cancellationToken);
+                return mapper.Map<IEnumerable<DocumentTemplateDto>>(templates);
             }
             catch (Exception exception)
             {
-                logger.TemplatesLoadingError(exception);
+                logger.QueuesLoadingError(exception);
                 throw new DataAccessException(LogMessageTexts.ErrorLoadingQueues, exception);
             }
         }

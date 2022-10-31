@@ -19,7 +19,8 @@ public class InMemoryTemplateProcessorFactory : ITemplateProcessorFactory
         }
     }
     public IEnumerable<ITemplateProcessor> Processors { get; }
-    public ITemplateProcessor GetProcessor(ProcessorId id) => Processors.Single(p => p.Id == id);
+    public ITemplateProcessor GetProcessor(ProcessorId id)
+        => Processors.SingleOrDefault(p => p.Id == id) ?? throw new NotFoundException(nameof(ITemplateProcessor), id);
     public ITemplateProcessor FindProcessor(ProcessorId id) => Processors.SingleOrDefault(p => p.Id == id);
     public IEnumerable<ITemplateProcessor> GetProcessors(TargetType targetType) => Processors.Where(p => p.TargetTypes.Contains(targetType));
 }

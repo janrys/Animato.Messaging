@@ -13,6 +13,7 @@ using Microsoft.Extensions.Logging;
 public class InMemoryQueueRepository : IQueueRepository
 {
     private readonly List<Queue> queues;
+    private readonly List<QueueTemplate> queueTemplates;
     private readonly ILogger<InMemoryQueueRepository> logger;
 
     public InMemoryQueueRepository(InMemoryDataContext dataContext, ILogger<InMemoryQueueRepository> logger)
@@ -23,6 +24,7 @@ public class InMemoryQueueRepository : IQueueRepository
         }
 
         queues = dataContext.Queues;
+        queueTemplates = dataContext.QueueTemplates;
         this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
     }
 
@@ -120,7 +122,8 @@ public class InMemoryQueueRepository : IQueueRepository
     {
         try
         {
-            return Task.FromResult(queues.RemoveAll(a => a.Id == queueId));
+            queueTemplates.RemoveAll(q => q.QueueId == queueId);
+            return Task.FromResult(queues.RemoveAll(q => q.Id == queueId));
         }
         catch (Exception exception)
         {
@@ -131,6 +134,7 @@ public class InMemoryQueueRepository : IQueueRepository
 
     public Task Clear(CancellationToken cancellationToken)
     {
+        queueTemplates.Clear();
         queues.Clear();
         return Task.CompletedTask;
     }

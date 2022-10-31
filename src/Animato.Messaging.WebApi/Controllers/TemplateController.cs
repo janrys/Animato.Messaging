@@ -37,18 +37,9 @@ public class TemplateController : ApiControllerBase
     [HttpGet("{id}", Name = "GetTemplateById")]
     public async Task<IActionResult> GetById(string id, CancellationToken cancellationToken)
     {
-        if (string.IsNullOrEmpty(id))
+        if (!TryParseAndValidateTemplateId(id, out var templateId, out var actionResult))
         {
-            return BadRequest($"{nameof(id)} must have a value");
-        }
-        DocumentTemplateId templateId;
-        if (Guid.TryParse(id, out var parsedTemplateId))
-        {
-            templateId = new DocumentTemplateId(parsedTemplateId);
-        }
-        else
-        {
-            return BadRequest($"{nameof(id)} has a wrong format '{id}'");
+            return actionResult;
         }
 
         var query = new GetTemplateByIdQuery(templateId, GetUser());
@@ -93,19 +84,9 @@ public class TemplateController : ApiControllerBase
     [HttpPut("{id}", Name = "UpdateTemplate")]
     public async Task<IActionResult> UpdateTemplate(string id, [FromBody] CreateDocumentTemplateModel template, CancellationToken cancellationToken)
     {
-        if (string.IsNullOrEmpty(id))
+        if (!TryParseAndValidateTemplateId(id, out var templateId, out var actionResult))
         {
-            return BadRequest($"{nameof(id)} must have a value");
-        }
-
-        DocumentTemplateId documentTemplateId;
-        if (Guid.TryParse(id, out var parsedDocumentTemplateId))
-        {
-            documentTemplateId = new DocumentTemplateId(parsedDocumentTemplateId);
-        }
-        else
-        {
-            return BadRequest($"{nameof(id)} has a wrong format '{id}'");
+            return actionResult;
         }
 
         if (template is null)
@@ -113,7 +94,7 @@ public class TemplateController : ApiControllerBase
             return BadRequest($"{nameof(template)} must have a value");
         }
 
-        var command = new UpdateDocumentTemplateCommand(documentTemplateId, template, GetUser());
+        var command = new UpdateDocumentTemplateCommand(templateId, template, GetUser());
         var updatedTemplate = await Send(command, cancellationToken);
         return Ok(updatedTemplate);
     }
@@ -129,9 +110,9 @@ public class TemplateController : ApiControllerBase
     [HttpPut("{id}/content", Name = "UpdateTemplateContent")]
     public async Task<IActionResult> UpdateTemplateContent(string id, IFormFile file, CancellationToken cancellationToken)
     {
-        if (string.IsNullOrEmpty(id))
+        if (!TryParseAndValidateTemplateId(id, out var templateId, out var actionResult))
         {
-            return BadRequest($"{nameof(id)} must have a value");
+            return actionResult;
         }
 
         if (file is null)
@@ -139,17 +120,7 @@ public class TemplateController : ApiControllerBase
             return BadRequest($"{nameof(file)} must have a value");
         }
 
-        DocumentTemplateId documentTemplateId;
-        if (Guid.TryParse(id, out var parsedDocumentTemplateId))
-        {
-            documentTemplateId = new DocumentTemplateId(parsedDocumentTemplateId);
-        }
-        else
-        {
-            return BadRequest($"{nameof(id)} has a wrong format '{id}'");
-        }
-
-        var command = new UpdateDocumentTemplateContentCommand(documentTemplateId, file.FileName, file.OpenReadStream(), GetUser());
+        var command = new UpdateDocumentTemplateContentCommand(templateId, file.FileName, file.OpenReadStream(), GetUser());
         var updatedTemplate = await Send(command, cancellationToken);
         return Ok(updatedTemplate);
     }
@@ -164,22 +135,12 @@ public class TemplateController : ApiControllerBase
     [HttpDelete("{id}", Name = "DeleteTemplate")]
     public async Task<IActionResult> DeleteTemplate(string id, CancellationToken cancellationToken)
     {
-        if (string.IsNullOrEmpty(id))
+        if (!TryParseAndValidateTemplateId(id, out var templateId, out var actionResult))
         {
-            return BadRequest($"{nameof(id)} must have a value");
+            return actionResult;
         }
 
-        DocumentTemplateId documentTemplateId;
-        if (Guid.TryParse(id, out var parsedDocumentTemplateId))
-        {
-            documentTemplateId = new DocumentTemplateId(parsedDocumentTemplateId);
-        }
-        else
-        {
-            return BadRequest($"{nameof(id)} has a wrong format '{id}'");
-        }
-
-        var command = new DeleteDocumentTemplateCommand(documentTemplateId, GetUser());
+        var command = new DeleteDocumentTemplateCommand(templateId, GetUser());
         await Send(command, cancellationToken);
         return Ok();
     }
@@ -191,28 +152,13 @@ public class TemplateController : ApiControllerBase
     /// <param name="processorId"></param>
     /// <param name="cancellationToken">Cancelation token</param>
     /// <returns>Updated template</returns>
-    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(Queue))]
+    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(DocumentTemplateDto))]
     [HttpPut("{id}/processor/{processorId}", Name = "UpdateTemplateProcessor")]
     public async Task<IActionResult> UpdateTemplateProcessor(string id, string processorId, CancellationToken cancellationToken)
     {
-        if (string.IsNullOrEmpty(id))
+        if (!TryParseAndValidateTemplateId(id, out var templateId, out var actionResult))
         {
-            return BadRequest($"{nameof(id)} must have a value");
-        }
-
-        if (string.IsNullOrEmpty(processorId))
-        {
-            return BadRequest($"{nameof(processorId)} must have a value");
-        }
-
-        DocumentTemplateId documentTemplateId;
-        if (Guid.TryParse(id, out var parsedDocumentTemplateId))
-        {
-            documentTemplateId = new DocumentTemplateId(parsedDocumentTemplateId);
-        }
-        else
-        {
-            return BadRequest($"{nameof(id)} has a wrong format '{id}'");
+            return actionResult;
         }
 
         ProcessorId validProcessorId;
@@ -225,7 +171,7 @@ public class TemplateController : ApiControllerBase
             return BadRequest($"{nameof(id)} has a wrong format '{id}'");
         }
 
-        var command = new UpdateDocumentTemplateProcessorCommand(documentTemplateId, validProcessorId, GetUser());
+        var command = new UpdateDocumentTemplateProcessorCommand(templateId, validProcessorId, GetUser());
         var updatedTemplate = await Send(command, cancellationToken);
         return Ok(updatedTemplate);
     }
