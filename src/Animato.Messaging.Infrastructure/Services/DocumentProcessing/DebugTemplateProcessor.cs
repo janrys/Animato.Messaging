@@ -1,4 +1,4 @@
-﻿namespace Animato.Messaging.Infrastructure.Services.DocumentProcessing;
+namespace Animato.Messaging.Infrastructure.Services.DocumentProcessing;
 using Animato.Messaging.Domain.Enums;
 
 public class DebugTemplateProcessor : BaseTemplateProcessor

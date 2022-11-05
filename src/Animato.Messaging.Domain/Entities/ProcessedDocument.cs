@@ -7,5 +7,6 @@ public class ProcessedDocument : BaseDocument
     public DateTime Processed { get; set; }
     public ProcessorId ProcessorId { get; set; }
     public string FilePath { get; set; }
+    public DateTime? SendingStarted { get; set; }
 }
 

@@ -13,4 +13,12 @@ public static class LogMessageTexts
     public const string ErrorCreatingTemplates = $"{ErrorCreating} templates";
     public const string ErrorUpdatingTemplates = $"{ErrorUpdating} templates";
     public const string ErrorDeletingTemplates = $"{ErrorDeleting} templates";
+    public const string ErrorLoadingTargets = $"{ErrorLoading} targets";
+    public const string ErrorCreatingTargets = $"{ErrorCreating} targets";
+    public const string ErrorUpdatingTargets = $"{ErrorUpdating} targets";
+    public const string ErrorDeletingTargets = $"{ErrorDeleting} targets";
+    public const string ErrorLoadingDocuments = $"{ErrorLoading} documents";
+    public const string ErrorCreatingDocuments = $"{ErrorCreating} documents";
+    public const string ErrorUpdatingDocuments = $"{ErrorUpdating} documents";
+    public const string ErrorDeletingDocuments = $"{ErrorDeleting} documents";
 }

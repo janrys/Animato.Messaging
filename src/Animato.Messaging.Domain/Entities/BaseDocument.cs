@@ -5,6 +5,7 @@ using Animato.Messaging.Domain.Enums;
 public abstract class BaseDocument
 {
     public DocumentId Id { get; set; }
+    public JobId JobId { get; set; }
     public QueueId QueueId { get; set; }
     public int QueuePriority { get; set; }
     public int DocumentPriority { get; set; }

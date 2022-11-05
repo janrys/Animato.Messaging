@@ -55,6 +55,31 @@ public static partial class LogMessages
     [LoggerMessage(20008, LogLevel.Error, LogMessageTexts.ErrorDeletingTemplates)]
     public static partial void TemplatesDeletingError(this ILogger logger, Exception exception);
 
+    [LoggerMessage(20009, LogLevel.Error, "Error generating document from template id {TemplateId}: {ProcessorError}")]
+    public static partial void TemplateProcessorError(this ILogger logger, string templateId, string processorError);
+    [LoggerMessage(20010, LogLevel.Error, LogMessageTexts.ErrorLoadingTargets)]
+    public static partial void TargetsLoadingError(this ILogger logger, Exception exception);
+
+    [LoggerMessage(20011, LogLevel.Error, LogMessageTexts.ErrorCreatingTargets)]
+    public static partial void TargetsCreatingError(this ILogger logger, Exception exception);
+
+    [LoggerMessage(20012, LogLevel.Error, LogMessageTexts.ErrorUpdatingTargets)]
+    public static partial void TargetsUpdatingError(this ILogger logger, Exception exception);
+
+    [LoggerMessage(20013, LogLevel.Error, LogMessageTexts.ErrorDeletingTargets)]
+    public static partial void TargetsDeletingError(this ILogger logger, Exception exception);
+    [LoggerMessage(20014, LogLevel.Error, LogMessageTexts.ErrorLoadingDocuments)]
+    public static partial void DocumentsLoadingError(this ILogger logger, Exception exception);
+
+    [LoggerMessage(20015, LogLevel.Error, LogMessageTexts.ErrorCreatingDocuments)]
+    public static partial void DocumentsCreatingError(this ILogger logger, Exception exception);
+
+    [LoggerMessage(20016, LogLevel.Error, LogMessageTexts.ErrorUpdatingDocuments)]
+    public static partial void DocumentsUpdatingError(this ILogger logger, Exception exception);
+
+    [LoggerMessage(20017, LogLevel.Error, LogMessageTexts.ErrorDeletingDocuments)]
+    public static partial void DocumentsDeletingError(this ILogger logger, Exception exception);
+
     /* CRITICAL >= 30000  */
 
 

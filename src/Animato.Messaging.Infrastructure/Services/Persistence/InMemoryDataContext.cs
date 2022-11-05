@@ -19,4 +19,9 @@ public class InMemoryDataContext
     public List<DocumentTemplate> Templates { get; set; } = new List<DocumentTemplate> { };
     public List<DocumentTemplateContent> TemplateContents { get; set; } = new List<DocumentTemplateContent> { };
     public List<QueueTemplate> QueueTemplates { get; set; } = new List<QueueTemplate> { };
+    public List<Target> Targets { get; set; } = new List<Target> { };
+    public List<InputDocument> ReceivedDocuments { get; set; }
+    public List<ProcessedDocument> ProcessedDocuments { get; set; }
+    public List<SendDocument> SendDocuments { get; set; }
+    public List<FailedDocument> FailedDocuments { get; set; }
 }
