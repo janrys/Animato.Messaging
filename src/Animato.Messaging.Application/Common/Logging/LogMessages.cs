@@ -7,6 +7,8 @@ public static partial class LogMessages
     /* TRACE >= 0  */
 
     /* DEBUG >= 5000  */
+    [LoggerMessage(5001, LogLevel.Debug, "Sending application event {EventType}: {EventData}")]
+    public static partial void ApplicationEventSendDebug(this ILogger logger, string eventType, string eventData);
 
     /* INFORMATION >= 10000  */
     [LoggerMessage(10001, LogLevel.Information, "Using {LayerName} persistence layer")]

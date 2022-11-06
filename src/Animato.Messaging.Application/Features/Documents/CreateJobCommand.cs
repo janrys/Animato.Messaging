@@ -42,6 +42,7 @@ public class CreateJobCommand : IRequest<JobDto>
         private readonly ITemplateRepository templateRepository;
         private readonly IJobRepository jobRepository;
         private readonly ITargetRepository targetRepository;
+        private readonly IApplicationEventService applicationEventService;
         private readonly ILogger<CreateJobCommandHandler> logger;
 
         public CreateJobCommandHandler(ITemplateProcessorFactory templateProcessorFactory
@@ -49,6 +50,7 @@ public class CreateJobCommand : IRequest<JobDto>
             , ITemplateRepository templateRepository
             , IJobRepository jobRepository
             , ITargetRepository targetRepository
+            , IApplicationEventService applicationEventService
             , ILogger<CreateJobCommandHandler> logger)
         {
             this.templateProcessorFactory = templateProcessorFactory ?? throw new ArgumentNullException(nameof(templateProcessorFactory));
@@ -56,6 +58,7 @@ public class CreateJobCommand : IRequest<JobDto>
             this.templateRepository = templateRepository ?? throw new ArgumentNullException(nameof(templateRepository));
             this.jobRepository = jobRepository ?? throw new ArgumentNullException(nameof(jobRepository));
             this.targetRepository = targetRepository ?? throw new ArgumentNullException(nameof(targetRepository));
+            this.applicationEventService = applicationEventService ?? throw new ArgumentNullException(nameof(applicationEventService));
             this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
@@ -103,6 +106,7 @@ public class CreateJobCommand : IRequest<JobDto>
                     TargetType = template.TargetType,
                 };
                 await jobRepository.ReceiveDocument(inputDocument, cancellationToken);
+                await applicationEventService.Publish(new DocumentReceivedEvent(inputDocument.JobId), cancellationToken);
 
                 return new JobDto() { Id = inputDocument.JobId.ToString() };
             }

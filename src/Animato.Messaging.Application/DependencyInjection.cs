@@ -3,6 +3,7 @@ using System.Reflection;
 using Animato.Messaging.Application.Common;
 using Animato.Messaging.Application.Common.Behaviours;
 using Animato.Messaging.Application.Common.Interfaces;
+using Animato.Messaging.Application.Common.Services;
 using Animato.Messaging.Application.Security;
 using FluentValidation;
 using MediatR;
@@ -29,7 +30,8 @@ public static class DependencyInjection
         services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehaviour<,>));
         services.AddTransient(typeof(IPipelineBehavior<,>), typeof(PerformanceBehaviour<,>));
         services.AddSingleton<IAuthorizationService, StaticMapAuthorizationService>();
-
+        services.AddSingleton<IApplicationEventService, ApplicationEventService>();
+        services.AddSingleton<IProcessDocumentService, ProcessDocumentService>();
         return services;
     }
 }

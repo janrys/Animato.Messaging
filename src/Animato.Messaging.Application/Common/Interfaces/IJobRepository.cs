@@ -13,4 +13,5 @@ public interface IJobRepository
     Task FailDocument(FailedDocument document, CancellationToken cancellationToken);
     Task<JobStatusDto> GetStatus(JobId jobId, CancellationToken cancellationToken);
     Task<DocumentStatusDto> GetStatus(DocumentId documentId, CancellationToken cancellationToken);
+    Task<IEnumerable<JobId>> GetJobsToProcess(CancellationToken cancellationToken);
 }
