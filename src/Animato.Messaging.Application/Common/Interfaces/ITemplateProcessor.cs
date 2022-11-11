@@ -9,4 +9,5 @@ public interface ITemplateProcessor
     public string Name { get; }
     public IEnumerable<TargetType> TargetTypes { get; }
     public bool CanProcess(TargetType targetType);
+    public Task<string> Generate(Stream templateStream, object data, TargetType targetType, CancellationToken cancellationToken);
 }

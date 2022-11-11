@@ -2,7 +2,7 @@ namespace Animato.Messaging.Application.Features.Documents;
 
 using System.Threading;
 using System.Threading.Tasks;
-using Animato.Messaging.Application.Features.Documents.Contracts;
+using Animato.Messaging.Application.Common.Interfaces;
 using Animato.Messaging.Domain.Entities;
 using FluentValidation;
 using MediatR;
@@ -21,14 +21,13 @@ public class DocumentReceivedEvent : INotification
 
     public class DocumentReceivedHandler : INotificationHandler<DocumentReceivedEvent>
     {
-        public DocumentReceivedHandler()
-        {
-        }
+        private readonly IProcessDocumentService processDocumentService;
+
+        public DocumentReceivedHandler(IProcessDocumentService processDocumentService)
+            => this.processDocumentService = processDocumentService ?? throw new ArgumentNullException(nameof(processDocumentService));
 
         public Task Handle(DocumentReceivedEvent notification, CancellationToken cancellationToken)
-        {
-
-        }
+            => processDocumentService.Enqueue(notification.JobId, cancellationToken);
     }
 }
 

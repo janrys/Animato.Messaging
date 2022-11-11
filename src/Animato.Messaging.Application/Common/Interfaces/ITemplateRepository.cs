@@ -8,6 +8,7 @@ using Animato.Messaging.Domain.Entities;
 public interface ITemplateRepository
 {
     Task<DocumentTemplate> GetById(DocumentTemplateId templateId, CancellationToken cancellationToken);
+    Task<Stream> GetContent(DocumentTemplateId templateId, CancellationToken cancellationToken);
     Task<DocumentTemplate> Create(DocumentTemplate documentTemplate, CancellationToken cancellationToken);
     Task<DocumentTemplate> Update(DocumentTemplate documentTemplate, CancellationToken cancellationToken);
     Task Delete(DocumentTemplateId templateId, CancellationToken cancellationToken);

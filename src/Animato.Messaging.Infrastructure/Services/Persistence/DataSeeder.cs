@@ -5,6 +5,9 @@ using System.Threading.Tasks;
 using Animato.Messaging.Application.Common;
 using Animato.Messaging.Application.Common.Interfaces;
 using Animato.Messaging.Application.Common.Logging;
+using Animato.Messaging.Domain.Entities;
+using Animato.Messaging.Domain.Enums;
+using Animato.Messaging.Infrastructure.Services.DocumentProcessing;
 using Microsoft.Extensions.Logging;
 
 public class DataSeeder : IDataSeeder
@@ -12,6 +15,8 @@ public class DataSeeder : IDataSeeder
     private readonly GlobalOptions globalOptions;
     private readonly IQueueRepository queueRepository;
     private readonly ITemplateRepository templateRepository;
+    private readonly List<Queue> seededQueues = new();
+    private readonly List<DocumentTemplate> seededTemplates = new();
 
     private readonly ILogger<DataSeeder> logger;
 
@@ -46,29 +51,55 @@ public class DataSeeder : IDataSeeder
 
     private async Task SeedQueues()
     {
-        //seededScopes.Add(await scopeRepository.Create(Scope.All, Scope.All.Id, CancellationToken.None));
-        //seededScopes.Add(await scopeRepository.Create(Scope.General, Scope.General.Id, CancellationToken.None));
-        //seededScopes.Add(await scopeRepository.Create(Scope.Online, Scope.Online.Id, CancellationToken.None));
-        //seededScopes.Add(await scopeRepository.Create(Scope.Phone, Scope.Phone.Id, CancellationToken.None));
-        //seededScopes.Add(await scopeRepository.Create(Scope.Role, Scope.Role.Id, CancellationToken.None));
-        //seededScopes.Add(await scopeRepository.Create(Scope.Mail, Scope.Mail.Id, CancellationToken.None));
+        seededQueues.Add(new Queue()
+        {
+            Id = new QueueId(),
+            IsActive = true,
+            Name = "default queue",
+            Priority = 10,
+        });
 
+        foreach (var queue in seededQueues)
+        {
+            await queueRepository.Create(queue, CancellationToken.None);
+        }
 
-        //foreach (var application in seededApplications)
-        //{
-        //    await applicationRepository.CreateApplicationScopes(application.Id
-        //        , CancellationToken.None
-        //        , seededScopes.Where(s => s.Id != Scope.Phone.Id).Select(s => s.Id).ToArray());
-        //}
-        await Task.CompletedTask;
         logger.DataSeededInformation("Queues");
     }
 
 
     private async Task SeedTemplates()
     {
-        await Task.CompletedTask;
+        var testTemplate = new DocumentTemplate()
+        {
+            Id = new DocumentTemplateId(),
+            Name = "test template",
+            TargetType = TargetType.Email,
+            ProcessorId = new ProcessorId(Guid.Parse(DebugTemplateProcessor.ProcessorId)),
+        };
+
+        seededTemplates.Add(testTemplate);
+
+        foreach (var template in seededTemplates)
+        {
+            await templateRepository.Create(template, CancellationToken.None);
+            await templateRepository.AddToQueue(template.Id, seededQueues.First().Id, CancellationToken.None);
+        }
+
+        var myTemplate = "my template content";
+        using var templateStream = GetStreamFromString(myTemplate);
+        await templateRepository.UpdateContent(testTemplate.Id, "testtemplate.html", templateStream, CancellationToken.None);
 
         logger.DataSeededInformation("Templates");
+    }
+
+    private static Stream GetStreamFromString(string s)
+    {
+        var stream = new MemoryStream();
+        var writer = new StreamWriter(stream);
+        writer.Write(s);
+        writer.Flush();
+        stream.Position = 0;
+        return stream;
     }
 }

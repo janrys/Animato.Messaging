@@ -20,8 +20,8 @@ public class InMemoryDataContext
     public List<DocumentTemplateContent> TemplateContents { get; set; } = new List<DocumentTemplateContent> { };
     public List<QueueTemplate> QueueTemplates { get; set; } = new List<QueueTemplate> { };
     public List<Target> Targets { get; set; } = new List<Target> { };
-    public List<InputDocument> ReceivedDocuments { get; set; }
-    public List<ProcessedDocument> ProcessedDocuments { get; set; }
-    public List<SendDocument> SendDocuments { get; set; }
-    public List<FailedDocument> FailedDocuments { get; set; }
+    public List<InputDocument> ReceivedDocuments { get; set; } = new List<InputDocument> { };
+    public List<ProcessedDocument> ProcessedDocuments { get; set; } = new List<ProcessedDocument> { };
+    public List<SendDocument> SendDocuments { get; set; } = new List<SendDocument> { };
+    public List<FailedDocument> FailedDocuments { get; set; } = new List<FailedDocument> { };
 }

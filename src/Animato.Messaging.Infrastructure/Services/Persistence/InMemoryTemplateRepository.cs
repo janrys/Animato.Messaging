@@ -144,6 +144,28 @@ public class InMemoryTemplateRepository : ITemplateRepository
         return Task.CompletedTask;
     }
 
+
+    public Task<Stream> GetContent(DocumentTemplateId templateId, CancellationToken cancellationToken)
+    {
+        try
+        {
+            var templateContent = templateContents.FirstOrDefault(u => u.Id == templateId);
+
+            if (templateContent is null)
+            {
+                throw new NotFoundException(nameof(DocumentTemplate), templateId);
+            }
+
+            return Task.FromResult(templateContent.Content);
+        }
+        catch (Exception exception)
+        {
+            logger.TemplatesLoadingError(exception);
+            throw;
+        }
+    }
+
+
     public Task UpdateContent(DocumentTemplateId templateId, string fileName, Stream content, CancellationToken cancellationToken)
     {
         if (content is null)

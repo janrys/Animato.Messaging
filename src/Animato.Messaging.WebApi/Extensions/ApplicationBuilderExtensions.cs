@@ -1,5 +1,6 @@
 namespace Animato.Messaging.WebApi.Extensions;
 
+using System;
 using Animato.Messaging.Application.Common;
 using HealthChecks.UI.Client;
 using Hellang.Middleware.ProblemDetails;
@@ -77,7 +78,7 @@ public static class ApplicationBuilderExtensions
                     .Enrich.FromLogContext()
                     .Enrich.WithExceptionDetails()
                     .Enrich.WithMachineName()
-                    .WriteTo.Async(a => a.Console());
+                    .WriteTo.Async(a => a.Console(formatProvider: GlobalOptions.Culture));
 
             if (globalOptions.UseApplicationInsights())
             {
@@ -93,7 +94,8 @@ public static class ApplicationBuilderExtensions
                retainedFileCountLimit: 2,
                rollOnFileSizeLimit: true,
                shared: true,
-               flushToDiskInterval: TimeSpan.FromSeconds(1));
+               flushToDiskInterval: TimeSpan.FromSeconds(1),
+               formatProvider: GlobalOptions.Culture);
             }
         });
 

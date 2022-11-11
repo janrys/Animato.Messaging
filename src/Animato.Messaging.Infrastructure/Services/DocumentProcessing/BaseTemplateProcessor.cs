@@ -1,6 +1,10 @@
 namespace Animato.Messaging.Infrastructure.Services.DocumentProcessing;
 using System;
 using System.Collections.Generic;
+using System.IO;
+using System.Threading;
+using System.Threading.Tasks;
+using Animato.Messaging.Application.Common;
 using Animato.Messaging.Application.Common.Interfaces;
 using Animato.Messaging.Domain.Entities;
 using Animato.Messaging.Domain.Enums;
@@ -31,4 +35,6 @@ public class BaseTemplateProcessor : ITemplateProcessor
     public string Name { get; init; }
 
     public bool CanProcess(TargetType targetType) => targetTypes.Contains(targetType);
+    public virtual Task<string> Generate(Stream templateStream, object data, TargetType targetType, CancellationToken cancellationToken)
+        => Task.FromResult(DateTime.UtcNow.ToString(GlobalOptions.DatePattern, GlobalOptions.Culture));
 }

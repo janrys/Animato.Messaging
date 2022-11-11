@@ -14,4 +14,5 @@ public interface ITargetRepository
     Task Clear(CancellationToken cancellationToken);
     Task<IEnumerable<Target>> FindAll(CancellationToken cancellationToken);
     Task<Target> FindById(TargetId targetId, CancellationToken cancellationToken);
+    Task<IEnumerable<Target>> FindById(IEnumerable<TargetId> targetIds, CancellationToken cancellationToken);
 }

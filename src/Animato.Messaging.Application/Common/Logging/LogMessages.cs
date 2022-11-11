@@ -1,4 +1,6 @@
 namespace Animato.Messaging.Application.Common.Logging;
+
+using Animato.Messaging.Domain.Entities;
 using Microsoft.Extensions.Logging;
 
 
@@ -9,6 +11,9 @@ public static partial class LogMessages
     /* DEBUG >= 5000  */
     [LoggerMessage(5001, LogLevel.Debug, "Sending application event {EventType}: {EventData}")]
     public static partial void ApplicationEventSendDebug(this ILogger logger, string eventType, string eventData);
+
+    [LoggerMessage(5002, LogLevel.Debug, "Executed document processing, Found {DocumentCount} to process")]
+    public static partial void DocumentProcessingDebug(this ILogger logger, int documentCount);
 
     /* INFORMATION >= 10000  */
     [LoggerMessage(10001, LogLevel.Information, "Using {LayerName} persistence layer")]
@@ -57,8 +62,8 @@ public static partial class LogMessages
     [LoggerMessage(20008, LogLevel.Error, LogMessageTexts.ErrorDeletingTemplates)]
     public static partial void TemplatesDeletingError(this ILogger logger, Exception exception);
 
-    [LoggerMessage(20009, LogLevel.Error, "Error generating document from template id {TemplateId}: {ProcessorError}")]
-    public static partial void TemplateProcessorError(this ILogger logger, string templateId, string processorError);
+    [LoggerMessage(20009, LogLevel.Error, "Error generating document: {ProcessorError}")]
+    public static partial void TemplateProcessorError(this ILogger logger, string processorError);
     [LoggerMessage(20010, LogLevel.Error, LogMessageTexts.ErrorLoadingTargets)]
     public static partial void TargetsLoadingError(this ILogger logger, Exception exception);
 
@@ -81,6 +86,9 @@ public static partial class LogMessages
 
     [LoggerMessage(20017, LogLevel.Error, LogMessageTexts.ErrorDeletingDocuments)]
     public static partial void DocumentsDeletingError(this ILogger logger, Exception exception);
+
+    [LoggerMessage(20018, LogLevel.Debug, "Document processing failed. Job {JobId}")]
+    public static partial void DocumentProcessingError(this ILogger logger, JobId jobId, Exception exception);
 
     /* CRITICAL >= 30000  */
 

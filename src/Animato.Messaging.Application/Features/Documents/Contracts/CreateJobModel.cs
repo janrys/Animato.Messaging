@@ -9,5 +9,5 @@ public class CreateJobModel
     public DateTime? SendDate { get; set; }
     public int? Priority { get; set; }
     public List<string> Targets { get; set; }
-    public JToken Data { get; set; }
+    public Dictionary<string, string> Data { get; set; }
 }

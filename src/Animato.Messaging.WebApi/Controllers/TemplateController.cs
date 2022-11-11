@@ -5,7 +5,6 @@ using Microsoft.AspNetCore.Mvc;
 using Animato.Messaging.Domain.Entities;
 using Animato.Messaging.Application.Features.Templates;
 using Animato.Messaging.Application.Features.Templates.Contracts;
-using Animato.Messaging.Application.Features.Queues;
 
 [ProducesResponseType(StatusCodes.Status400BadRequest)]
 [ProducesResponseType(StatusCodes.Status500InternalServerError)]

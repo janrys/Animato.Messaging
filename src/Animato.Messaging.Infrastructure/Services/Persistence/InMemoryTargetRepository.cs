@@ -51,6 +51,20 @@ public class InMemoryTargetRepository : ITargetRepository
         return template;
     }
 
+    public Task<IEnumerable<Target>> FindById(IEnumerable<TargetId> targetIds, CancellationToken cancellationToken)
+    {
+        try
+        {
+            return Task.FromResult(targets.Join(targetIds, t => t.Id, i => i, (t, i) => t));
+        }
+        catch (Exception exception)
+        {
+            logger.TargetsLoadingError(exception);
+            throw;
+        }
+    }
+
+
     public Task<Target> FindById(TargetId targetId, CancellationToken cancellationToken)
     {
         try

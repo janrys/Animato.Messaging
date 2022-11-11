@@ -3,6 +3,7 @@ namespace Animato.Messaging.WebApi.Extensions;
 using System.Reflection;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using Animato.Messaging.Application.Common;
 using Animato.Messaging.Application.Common.Interfaces;
 using Animato.Messaging.WebApi.BackgroundServices;
 using Animato.Messaging.WebApi.Filters;
@@ -19,7 +20,7 @@ using Serilog.Exceptions;
 
 public static class ServiceCollectionExtensions
 {
-    private static readonly bool UseNewtonsoft = false;
+    private static readonly bool UseNewtonsoft = true;
 
     public static IConfigurationBuilder AddCustomConfiguration(this IConfigurationBuilder builder, string environmentName)
         => builder.AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
@@ -33,7 +34,7 @@ public static class ServiceCollectionExtensions
             .MinimumLevel.Override("Microsoft", LogEventLevel.Information)
             .Enrich.FromLogContext()
             .Enrich.WithExceptionDetails()
-            .WriteTo.Async(a => a.Console())
+            .WriteTo.Async(a => a.Console(formatProvider: GlobalOptions.Culture))
             .CreateBootstrapLogger();
 
     public static IServiceCollection AddCustomProblemDetails(this IServiceCollection services)

@@ -1,5 +1,6 @@
 namespace Animato.Messaging.Infrastructure.Services.Persistence;
 
+using System.Collections.Generic;
 using System.Reflection.Metadata;
 using System.Threading;
 using System.Threading.Tasks;
@@ -146,6 +147,57 @@ public class InMemoryJobRepository : IJobRepository
         }
     }
 
+    public Task<IEnumerable<JobId>> GetJobsToProcess(CancellationToken cancellationToken)
+    {
+        try
+        {
+            return Task.FromResult(receivedDocuments.Where(d => d.ProcessingStarted is null).Select(d => d.JobId));
+        }
+        catch (Exception exception)
+        {
+            logger.DocumentsLoadingError(exception);
+            throw;
+        }
+    }
+
+    public Task<InputDocument> StartProcessingJob(JobId jobId, CancellationToken cancellationToken)
+    {
+        try
+        {
+            var inputDocument = receivedDocuments.FirstOrDefault(d => d.JobId == jobId);
+
+            if (inputDocument is null || inputDocument.ProcessingStarted.HasValue)
+            {
+                return null;
+            }
+
+            inputDocument.ProcessingStarted = DateTime.UtcNow;
+            receivedDocuments.RemoveAll(d => d.Id == inputDocument.Id);
+            receivedDocuments.Add(inputDocument);
+            return Task.FromResult(inputDocument);
+        }
+        catch (Exception exception)
+        {
+            logger.DocumentsLoadingError(exception);
+            throw;
+        }
+    }
+
+    public Task RemoveProcessingJob(JobId jobId, CancellationToken cancellationToken)
+    {
+        try
+        {
+            receivedDocuments.RemoveAll(d => d.JobId == jobId);
+            return Task.CompletedTask;
+        }
+        catch (Exception exception)
+        {
+            logger.DocumentsUpdatingError(exception);
+            throw;
+        }
+    }
+
+
     public Task SendDocument(SendDocument document, CancellationToken cancellationToken)
     {
         if (document is null)
@@ -182,4 +234,5 @@ public class InMemoryJobRepository : IJobRepository
             throw;
         }
     }
+
 }

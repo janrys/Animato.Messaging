@@ -1,4 +1,4 @@
-namespace Animato.Messaging.Application.Features.Queues;
+namespace Animato.Messaging.Application.Features.Templates;
 using System;
 using System.Security.Claims;
 using System.Threading;

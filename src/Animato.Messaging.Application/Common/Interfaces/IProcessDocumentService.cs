@@ -6,4 +6,5 @@ public interface IProcessDocumentService
 {
     Task CheckWaiting(CancellationToken cancellationToken);
     Task Enqueue(JobId jobId, CancellationToken cancellationToken);
+    Task Process(CancellationToken cancellationToken);
 }

@@ -39,6 +39,8 @@ public static class DependencyInjection
         services.AddSingleton<InMemoryDataContext>();
         services.AddSingleton<IQueueRepository, InMemoryQueueRepository>();
         services.AddSingleton<ITemplateRepository, InMemoryTemplateRepository>();
+        services.AddSingleton<IJobRepository, InMemoryJobRepository>();
+        services.AddSingleton<ITargetRepository, InMemoryTargetRepository>();
         return services;
     }
 
@@ -46,6 +48,7 @@ public static class DependencyInjection
     {
         services.AddSingleton<ITemplateProcessor, BaseTemplateProcessor>();
         services.AddSingleton<ITemplateProcessor, DebugTemplateProcessor>();
+        services.AddSingleton<ITemplateProcessor, FluidTemplateProcessor>();
         services.AddSingleton<ITemplateProcessorFactory, InMemoryTemplateProcessorFactory>();
         return services;
     }
