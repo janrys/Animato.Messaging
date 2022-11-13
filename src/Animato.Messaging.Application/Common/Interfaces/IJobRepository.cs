@@ -17,7 +17,7 @@ public interface IJobRepository
     Task<IEnumerable<JobId>> GetJobsToProcess(CancellationToken cancellationToken);
     Task<IEnumerable<DocumentId>> GetDocumentsToSend(CancellationToken cancellationToken);
     Task<InputDocument> StartProcessingJob(JobId jobId, CancellationToken cancellationToken);
-    Task<SendDocument> StartSendingDocument(DocumentId documentId, CancellationToken cancellationToken);
+    Task<ProcessedDocument> StartSendingDocument(DocumentId documentId, CancellationToken cancellationToken);
     Task RemoveProcessingJob(JobId jobId, CancellationToken cancellationToken);
     Task<IEnumerable<JobStatusDto>> GetStatus(QueueType queueType, CancellationToken cancellationToken);
 }
