@@ -24,4 +24,5 @@ public class InMemoryDataContext
     public List<ProcessedDocument> ProcessedDocuments { get; set; } = new List<ProcessedDocument> { };
     public List<SendDocument> SendDocuments { get; set; } = new List<SendDocument> { };
     public List<FailedDocument> FailedDocuments { get; set; } = new List<FailedDocument> { };
+    public Dictionary<string, string> Files { get; set; } = new Dictionary<string, string> { };
 }

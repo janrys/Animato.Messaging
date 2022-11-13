@@ -13,4 +13,6 @@ public interface IQueueRepository
     Task<Queue> Update(Queue queue, CancellationToken cancellationToken);
     Task Delete(QueueId queueId, CancellationToken cancellationToken);
     Task Clear(CancellationToken cancellationToken);
+    Task<Queue> GetByName(string queueName, CancellationToken cancellationToken);
+    Task<Queue> FindByName(string queueName, CancellationToken cancellationToken);
 }

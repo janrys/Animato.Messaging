@@ -139,4 +139,27 @@ public class InMemoryQueueRepository : IQueueRepository
         return Task.CompletedTask;
     }
 
+    public async Task<Queue> GetByName(string queueName, CancellationToken cancellationToken)
+    {
+        var queue = await FindByName(queueName, cancellationToken);
+
+        if (queue is null)
+        {
+            throw new NotFoundException(nameof(Queue), queueName);
+        }
+
+        return queue;
+    }
+    public Task<Queue> FindByName(string queueName, CancellationToken cancellationToken)
+    {
+        try
+        {
+            return Task.FromResult(queues.FirstOrDefault(u => u.Name.Equals(queueName, StringComparison.OrdinalIgnoreCase)));
+        }
+        catch (Exception exception)
+        {
+            logger.QueuesLoadingError(exception);
+            throw;
+        }
+    }
 }

@@ -1,4 +1,4 @@
-﻿namespace Animato.Messaging.Application.Features.Queues.Contracts;
+namespace Animato.Messaging.Application.Features.Queues.Contracts;
 
 using Animato.Messaging.Domain.Entities;
 using FluentValidation;

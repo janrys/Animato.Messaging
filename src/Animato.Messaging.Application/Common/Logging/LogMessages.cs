@@ -33,6 +33,10 @@ public static partial class LogMessages
 
     [LoggerMessage(10006, LogLevel.Information, "{ServiceName} finished")]
     public static partial void ServiceFinishedInformation(this ILogger logger, string serviceName);
+    [LoggerMessage(10007, LogLevel.Information, "Starting processing job {JobId}")]
+    public static partial void StartProcessingDocumentInformation(this ILogger logger, JobId jobId);
+    [LoggerMessage(10008, LogLevel.Information, "Finished processing job {JobId} succesfully")]
+    public static partial void FinishedProcessingDocumentInformation(this ILogger logger, JobId jobId);
 
     /* WARNINGS >= 15000  */
 
@@ -87,8 +91,8 @@ public static partial class LogMessages
     [LoggerMessage(20017, LogLevel.Error, LogMessageTexts.ErrorDeletingDocuments)]
     public static partial void DocumentsDeletingError(this ILogger logger, Exception exception);
 
-    [LoggerMessage(20018, LogLevel.Debug, "Document processing failed. Job {JobId}")]
-    public static partial void DocumentProcessingError(this ILogger logger, JobId jobId, Exception exception);
+    [LoggerMessage(20018, LogLevel.Error, "Document processing failed. Job {JobId}")]
+    public static partial void FinishedProcessingDocumentError(this ILogger logger, JobId jobId, Exception exception);
 
     /* CRITICAL >= 30000  */
 

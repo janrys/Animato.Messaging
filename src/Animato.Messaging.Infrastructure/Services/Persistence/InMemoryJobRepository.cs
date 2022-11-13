@@ -34,6 +34,44 @@ public class InMemoryJobRepository : IJobRepository
         this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
     }
 
+    public Task<IEnumerable<JobStatusDto>> GetStatus(QueueType queueType, CancellationToken cancellationToken)
+    {
+        var jobs = new List<JobStatusDto>();
+        var documents = new List<BaseDocument>();
+
+        if (queueType == QueueType.Received)
+        {
+            documents.AddRange(receivedDocuments);
+        }
+        else if (queueType == QueueType.Processed)
+        {
+            documents.AddRange(processedDocuments);
+        }
+        else if (queueType == QueueType.Send)
+        {
+            documents.AddRange(sendDocuments);
+        }
+        else if (queueType == QueueType.Failed)
+        {
+            documents.AddRange(failedDocuments);
+        }
+        else
+        {
+            throw new ValidationException(ValidationException.CreateFailure(nameof(QueueType), $"Unknownd type of queue type {queueType.ToLogString()}"));
+        }
+
+        foreach (var jobId in documents.Select(d => d.JobId).Distinct())
+        {
+            var job = new JobStatusDto() { Id = jobId.ToString() };
+            job.Documents.AddRange(documents.Where(d => d.JobId == jobId)
+                .Select(d => new DocumentStatusDto() { Id = d.Id.ToString(), Status = GetStatusForDocument(d) }));
+            jobs.Add(job);
+        }
+
+        return Task.FromResult(jobs.AsEnumerable());
+    }
+
+
     public Task<JobStatusDto> GetStatus(JobId jobId, CancellationToken cancellationToken)
     {
         var status = new JobStatusDto() { Id = jobId.ToString() };
@@ -160,6 +198,19 @@ public class InMemoryJobRepository : IJobRepository
         }
     }
 
+    public Task<IEnumerable<DocumentId>> GetDocumentsToSend(CancellationToken cancellationToken)
+    {
+        try
+        {
+            return Task.FromResult(processedDocuments.Where(d => d.ScheduleSendDate <= DateTime.UtcNow && !d.SendingStarted.HasValue).Select(d => d.Id));
+        }
+        catch (Exception exception)
+        {
+            logger.DocumentsLoadingError(exception);
+            throw;
+        }
+    }
+
     public Task<InputDocument> StartProcessingJob(JobId jobId, CancellationToken cancellationToken)
     {
         try
@@ -175,6 +226,29 @@ public class InMemoryJobRepository : IJobRepository
             receivedDocuments.RemoveAll(d => d.Id == inputDocument.Id);
             receivedDocuments.Add(inputDocument);
             return Task.FromResult(inputDocument);
+        }
+        catch (Exception exception)
+        {
+            logger.DocumentsLoadingError(exception);
+            throw;
+        }
+    }
+
+    public Task<ProcessedDocument> StartSendingDocument(DocumentId documentId, CancellationToken cancellationToken)
+    {
+        try
+        {
+            var processedDocument = processedDocuments.FirstOrDefault(d => d.Id == documentId);
+
+            if (processedDocument is null || processedDocument.SendingStarted.HasValue)
+            {
+                return null;
+            }
+
+            processedDocument.SendingStarted = DateTime.UtcNow;
+            processedDocuments.RemoveAll(d => d.Id == processedDocument.Id);
+            processedDocuments.Add(processedDocument);
+            return Task.FromResult(processedDocument);
         }
         catch (Exception exception)
         {

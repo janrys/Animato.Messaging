@@ -80,15 +80,25 @@ public class DataSeeder : IDataSeeder
 
         seededTemplates.Add(testTemplate);
 
+        testTemplate = new DocumentTemplate()
+        {
+            Id = new DocumentTemplateId(),
+            Name = "test long running/failing template",
+            TargetType = TargetType.Email,
+            ProcessorId = new ProcessorId(Guid.Parse(LongRunningDebugTemplateProcessor.ProcessorId)),
+        };
+
+        seededTemplates.Add(testTemplate);
+
+        var myTemplate = "my template content";
+        using var templateStream = GetStreamFromString(myTemplate);
+
         foreach (var template in seededTemplates)
         {
             await templateRepository.Create(template, CancellationToken.None);
             await templateRepository.AddToQueue(template.Id, seededQueues.First().Id, CancellationToken.None);
+            await templateRepository.UpdateContent(template.Id, "testtemplate.html", templateStream, CancellationToken.None);
         }
-
-        var myTemplate = "my template content";
-        using var templateStream = GetStreamFromString(myTemplate);
-        await templateRepository.UpdateContent(testTemplate.Id, "testtemplate.html", templateStream, CancellationToken.None);
 
         logger.DataSeededInformation("Templates");
     }

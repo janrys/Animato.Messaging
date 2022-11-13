@@ -5,6 +5,7 @@ using Animato.Messaging.Application.Common;
 using Animato.Messaging.Application.Common.Interfaces;
 using Animato.Messaging.Infrastructure.Services;
 using Animato.Messaging.Infrastructure.Services.DocumentProcessing;
+using Animato.Messaging.Infrastructure.Services.DocumentSending;
 using Animato.Messaging.Infrastructure.Services.Messaging;
 using Animato.Messaging.Infrastructure.Services.Persistence;
 using Microsoft.Extensions.Configuration;
@@ -26,6 +27,7 @@ public static class DependencyInjection
         }
         services.AddSingleton<IDataSeeder, DataSeeder>();
         services.AddTemplateProcessors();
+        services.AddDocumentSenders();
 
         services.AddSingleton<IDateTimeService, DateTimeService>();
         services.AddSingleton<IDomainEventService>(service
@@ -41,6 +43,7 @@ public static class DependencyInjection
         services.AddSingleton<ITemplateRepository, InMemoryTemplateRepository>();
         services.AddSingleton<IJobRepository, InMemoryJobRepository>();
         services.AddSingleton<ITargetRepository, InMemoryTargetRepository>();
+        services.AddSingleton<IFileRepository, InMemoryFileRepository>();
         return services;
     }
 
@@ -49,7 +52,14 @@ public static class DependencyInjection
         services.AddSingleton<ITemplateProcessor, BaseTemplateProcessor>();
         services.AddSingleton<ITemplateProcessor, DebugTemplateProcessor>();
         services.AddSingleton<ITemplateProcessor, FluidTemplateProcessor>();
+        services.AddSingleton<ITemplateProcessor, LongRunningDebugTemplateProcessor>();
         services.AddSingleton<ITemplateProcessorFactory, InMemoryTemplateProcessorFactory>();
+        return services;
+    }
+
+    private static IServiceCollection AddDocumentSenders(this IServiceCollection services)
+    {
+        services.AddSingleton<IDocumentSenderFactory, InMemoryDocumentSenderFactory>();
         return services;
     }
 }

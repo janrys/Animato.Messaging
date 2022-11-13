@@ -1,4 +1,4 @@
-﻿namespace Animato.Messaging.Domain.Entities;
+namespace Animato.Messaging.Domain.Entities;
 
 public class FailedDocument : BaseDocument
 {

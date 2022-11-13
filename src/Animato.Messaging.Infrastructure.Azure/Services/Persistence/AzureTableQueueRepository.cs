@@ -183,4 +183,7 @@ public class AzureTableQueueRepository : IQueueRepository
             throw;
         }
     }
+
+    public Task<Queue> GetByName(string queueName, CancellationToken cancellationToken) => throw new NotImplementedException();
+    public Task<Queue> FindByName(string queueName, CancellationToken cancellationToken) => throw new NotImplementedException();
 }

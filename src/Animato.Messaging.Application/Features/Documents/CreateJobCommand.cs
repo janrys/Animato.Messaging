@@ -64,29 +64,48 @@ public class CreateJobCommand : IRequest<JobDto>
 
         public async Task<JobDto> Handle(CreateJobCommand request, CancellationToken cancellationToken)
         {
-            DocumentTemplateId templateId;
-            if (Guid.TryParse(request.Job.TemplateId, out var parsedTemplateId))
+            DocumentTemplate template;
+
+            if (!string.IsNullOrEmpty(request.Job.TemplateId))
             {
-                templateId = new DocumentTemplateId(parsedTemplateId);
+                DocumentTemplateId templateId;
+                if (Guid.TryParse(request.Job.TemplateId, out var parsedTemplateId))
+                {
+                    templateId = new DocumentTemplateId(parsedTemplateId);
+                }
+                else
+                {
+                    throw new Exceptions.ValidationException(Exceptions.ValidationException.CreateFailure(nameof(request.Job.TemplateId), request.Job.TemplateId));
+                }
+                template = await templateRepository.GetById(templateId, cancellationToken);
             }
             else
             {
-                throw new Exceptions.ValidationException(Exceptions.ValidationException.CreateFailure(nameof(request.Job.TemplateId), request.Job.TemplateId));
+                template = await templateRepository.GetByName(request.Job.TemplateName, cancellationToken);
             }
 
-            QueueId queueId;
-            if (Guid.TryParse(request.Job.QueueId, out var parsedQueueId))
+            Queue queue;
+
+            if (!string.IsNullOrEmpty(request.Job.QueueId))
             {
-                queueId = new QueueId(parsedQueueId);
+                QueueId queueId;
+                if (Guid.TryParse(request.Job.QueueId, out var parsedQueueId))
+                {
+                    queueId = new QueueId(parsedQueueId);
+                }
+                else
+                {
+                    throw new Exceptions.ValidationException(Exceptions.ValidationException.CreateFailure(nameof(request.Job.TemplateId), request.Job.TemplateId));
+                }
+
+                queue = await queueRepository.GetById(queueId, cancellationToken);
             }
             else
             {
-                throw new Exceptions.ValidationException(Exceptions.ValidationException.CreateFailure(nameof(request.Job.TemplateId), request.Job.TemplateId));
+                queue = await queueRepository.GetByName(request.Job.QueueName, cancellationToken);
             }
 
-            var template = await templateRepository.GetById(templateId, cancellationToken);
             var processor = templateProcessorFactory.GetProcessor(template.ProcessorId);
-            var queue = await queueRepository.GetById(queueId, cancellationToken);
 
             try
             {
@@ -95,7 +114,7 @@ public class CreateJobCommand : IRequest<JobDto>
                 {
                     JobId = JobId.New(),
                     TargetIds = new List<TargetId>(targets.Select(t => t.Id)),
-                    TemplateId = templateId,
+                    TemplateId = template.Id,
                     ProcessorId = processor.Id,
                     Data = request.Job.Data.ToString(),
                     QueueId = queue.Id,

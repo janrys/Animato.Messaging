@@ -56,11 +56,37 @@ public class InMemoryTemplateRepository : ITemplateRepository
         return template;
     }
 
+
     public Task<DocumentTemplate> FindById(DocumentTemplateId templateId, CancellationToken cancellationToken)
     {
         try
         {
             return Task.FromResult(templates.FirstOrDefault(u => u.Id == templateId));
+        }
+        catch (Exception exception)
+        {
+            logger.TemplatesLoadingError(exception);
+            throw;
+        }
+    }
+
+    public async Task<DocumentTemplate> GetByName(string templateName, CancellationToken cancellationToken)
+    {
+        var template = await FindByName(templateName, cancellationToken);
+
+        if (template is null)
+        {
+            throw new NotFoundException(nameof(DocumentTemplate), templateName);
+        }
+
+        return template;
+    }
+
+    public Task<DocumentTemplate> FindByName(string templateName, CancellationToken cancellationToken)
+    {
+        try
+        {
+            return Task.FromResult(templates.FirstOrDefault(u => u.Name.Equals(templateName, StringComparison.OrdinalIgnoreCase)));
         }
         catch (Exception exception)
         {
@@ -145,7 +171,7 @@ public class InMemoryTemplateRepository : ITemplateRepository
     }
 
 
-    public Task<Stream> GetContent(DocumentTemplateId templateId, CancellationToken cancellationToken)
+    public async Task<Stream> GetContent(DocumentTemplateId templateId, CancellationToken cancellationToken)
     {
         try
         {
@@ -156,7 +182,11 @@ public class InMemoryTemplateRepository : ITemplateRepository
                 throw new NotFoundException(nameof(DocumentTemplate), templateId);
             }
 
-            return Task.FromResult(templateContent.Content);
+            var memoryStream = new MemoryStream();
+            await templateContent.Content.CopyToAsync(memoryStream, cancellationToken);
+            memoryStream.Position = 0;
+
+            return memoryStream;
         }
         catch (Exception exception)
         {
@@ -245,4 +275,5 @@ public class InMemoryTemplateRepository : ITemplateRepository
             throw;
         }
     }
+
 }

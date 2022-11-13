@@ -1,4 +1,4 @@
-﻿namespace Animato.Messaging.Application.Exceptions;
+namespace Animato.Messaging.Application.Exceptions;
 
 using Animato.Messaging.Domain.Entities;
 

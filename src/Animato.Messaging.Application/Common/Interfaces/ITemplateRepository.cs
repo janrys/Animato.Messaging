@@ -19,4 +19,6 @@ public interface ITemplateRepository
     Task<IEnumerable<DocumentTemplate>> FindByQueue(QueueId queueId, CancellationToken cancellationToken);
     Task AddToQueue(DocumentTemplateId templateId, QueueId queueId, CancellationToken cancellationToken);
     Task RemoveFromQueue(DocumentTemplateId templateId, QueueId queueId, CancellationToken cancellationToken);
+    Task<DocumentTemplate> GetByName(string templateName, CancellationToken cancellationToken);
+    Task<DocumentTemplate> FindByName(string templateName, CancellationToken cancellationToken);
 }
