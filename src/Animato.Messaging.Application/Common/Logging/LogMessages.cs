@@ -33,10 +33,21 @@ public static partial class LogMessages
 
     [LoggerMessage(10006, LogLevel.Information, "{ServiceName} finished")]
     public static partial void ServiceFinishedInformation(this ILogger logger, string serviceName);
+
     [LoggerMessage(10007, LogLevel.Information, "Starting processing job {JobId}")]
     public static partial void StartProcessingDocumentInformation(this ILogger logger, JobId jobId);
+
     [LoggerMessage(10008, LogLevel.Information, "Finished processing job {JobId} succesfully")]
     public static partial void FinishedProcessingDocumentInformation(this ILogger logger, JobId jobId);
+
+    [LoggerMessage(10009, LogLevel.Information, "Starting sending document {DocumentId}")]
+    public static partial void StartSendingDocumentInformation(this ILogger logger, DocumentId documentId);
+
+    [LoggerMessage(10010, LogLevel.Information, "Finished sending document {DocumentId}, job {JobId} succesfully")]
+    public static partial void FinishedSendingDocumentInformation(this ILogger logger, DocumentId documentId, JobId jobId);
+
+    [LoggerMessage(10011, LogLevel.Information, "Sending document to {Address}, content {file}")]
+    public static partial void SendingDocumentInformation(this ILogger logger, string address, string file);
 
     /* WARNINGS >= 15000  */
 
@@ -93,6 +104,8 @@ public static partial class LogMessages
 
     [LoggerMessage(20018, LogLevel.Error, "Document processing failed. Job {JobId}")]
     public static partial void FinishedProcessingDocumentError(this ILogger logger, JobId jobId, Exception exception);
+    [LoggerMessage(20019, LogLevel.Error, "Document {DocumentId} sending failed. Job {JobId}")]
+    public static partial void FinishedSendingDocumentError(this ILogger logger, DocumentId documentId, JobId jobId, Exception exception);
 
     /* CRITICAL >= 30000  */
 

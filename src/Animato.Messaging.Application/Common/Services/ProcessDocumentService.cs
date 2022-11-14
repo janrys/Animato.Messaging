@@ -114,13 +114,13 @@ public class ProcessDocumentService : IProcessDocumentService, IDisposable
 
             foreach (var targetId in inputDocument.TargetIds)
             {
-                var sendDocument = SendDocument.Create(inputDocument);
-                sendDocument.Processed = DateTime.UtcNow;
-                sendDocument.TargetId = targetId;
-                sendDocument.FilePath = filePath;
-                await jobRepository.SendDocument(sendDocument, cancellationToken);
-                await jobRepository.RemoveProcessingJob(jobId, cancellationToken);
-                await applicationEventService.Publish(new DocumentProcessedEvent(sendDocument.Id), cancellationToken);
+                var processsedDocument = ProcessedDocument.Create(inputDocument);
+                processsedDocument.Processed = DateTime.UtcNow;
+                processsedDocument.TargetId = targetId;
+                processsedDocument.FilePath = filePath;
+                await jobRepository.ProcessDocument(processsedDocument, cancellationToken);
+                await jobRepository.RemoveReceivedJob(jobId, cancellationToken);
+                await applicationEventService.Publish(new DocumentProcessedEvent(processsedDocument.Id), cancellationToken);
             }
             logger.FinishedProcessingDocumentInformation(jobId);
 
@@ -144,7 +144,7 @@ public class ProcessDocumentService : IProcessDocumentService, IDisposable
             failedDocument.Errors.Add($"Processing job failed {exception.GetType().Name} {exception.Message}");
 
             await jobRepository.FailDocument(failedDocument, cancellationToken);
-            await jobRepository.RemoveProcessingJob(jobId, cancellationToken);
+            await jobRepository.RemoveReceivedJob(jobId, cancellationToken);
             logger.FinishedProcessingDocumentError(jobId, exception);
         }
     }

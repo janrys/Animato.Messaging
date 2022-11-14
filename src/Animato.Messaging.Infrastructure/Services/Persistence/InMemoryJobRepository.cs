@@ -257,7 +257,7 @@ public class InMemoryJobRepository : IJobRepository
         }
     }
 
-    public Task RemoveProcessingJob(JobId jobId, CancellationToken cancellationToken)
+    public Task RemoveReceivedJob(JobId jobId, CancellationToken cancellationToken)
     {
         try
         {
@@ -290,6 +290,21 @@ public class InMemoryJobRepository : IJobRepository
             throw;
         }
     }
+
+    public Task RemoveProcessedDocument(DocumentId id, CancellationToken cancellationToken)
+    {
+        try
+        {
+            processedDocuments.RemoveAll(d => d.Id == id);
+            return Task.CompletedTask;
+        }
+        catch (Exception exception)
+        {
+            logger.DocumentsUpdatingError(exception);
+            throw;
+        }
+    }
+
     public Task FailDocument(FailedDocument document, CancellationToken cancellationToken)
     {
         if (document is null)

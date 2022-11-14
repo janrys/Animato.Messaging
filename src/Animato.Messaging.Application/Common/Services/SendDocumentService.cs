@@ -5,8 +5,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using Animato.Messaging.Application.Common.Interfaces;
 using Animato.Messaging.Application.Common.Logging;
-using Animato.Messaging.Application.Exceptions;
-using Animato.Messaging.Application.Features.Documents;
 using Animato.Messaging.Domain.Entities;
 using Microsoft.Extensions.Logging;
 
@@ -15,8 +13,6 @@ public class SendDocumentService : ISendDocumentService, IDisposable
     private readonly ConcurrentQueue<DocumentId> documents = new();
     private readonly IJobRepository jobRepository;
     private readonly IDocumentSenderFactory documentSenderFactory;
-    private readonly ITemplateRepository templateRepository;
-    private readonly IApplicationEventService applicationEventService;
     private readonly ITargetRepository targetRepository;
     private readonly IFileRepository fileRepository;
     private readonly ILogger<ProcessDocumentService> logger;
@@ -25,16 +21,12 @@ public class SendDocumentService : ISendDocumentService, IDisposable
 
     public SendDocumentService(IJobRepository jobRepository
         , IDocumentSenderFactory documentSenderFactory
-        , ITemplateRepository templateRepository
-        , IApplicationEventService applicationEventService
         , ITargetRepository targetRepository
         , IFileRepository fileRepository
         , ILogger<ProcessDocumentService> logger)
     {
         this.jobRepository = jobRepository ?? throw new ArgumentNullException(nameof(jobRepository));
         this.documentSenderFactory = documentSenderFactory ?? throw new ArgumentNullException(nameof(documentSenderFactory));
-        this.templateRepository = templateRepository ?? throw new ArgumentNullException(nameof(templateRepository));
-        this.applicationEventService = applicationEventService ?? throw new ArgumentNullException(nameof(applicationEventService));
         this.targetRepository = targetRepository ?? throw new ArgumentNullException(nameof(targetRepository));
         this.fileRepository = fileRepository ?? throw new ArgumentNullException(nameof(fileRepository));
         this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
@@ -104,43 +96,37 @@ public class SendDocumentService : ISendDocumentService, IDisposable
             }
 
             var target = await targetRepository.GetById(processedDocument.TargetId, cancellationToken);
-            var processor = documentSenderFactory.GetSender(processedDocument.TargetType, target);
+            var sender = documentSenderFactory.GetSender(processedDocument.TargetType, target);
             var file = await fileRepository.GetFile(processedDocument.FilePath, cancellationToken);
+            await sender.Send(file, target, cancellationToken);
 
-
-            foreach (var targetId in inputDocument.TargetIds)
-            {
-                var sendDocument = SendDocument.Create(inputDocument);
-                sendDocument.Processed = DateTime.UtcNow;
-                sendDocument.TargetId = targetId;
-                await jobRepository.SendDocument(sendDocument, cancellationToken);
-                await jobRepository.RemoveProcessingJob(jobId, cancellationToken);
-                await applicationEventService.Publish(new DocumentProcessedEvent(sendDocument.Id), cancellationToken);
-            }
-            logger.FinishedProcessingDocumentInformation(jobId);
-
+            var sendDocument = Domain.Entities.SendDocument.Create(processedDocument);
+            sendDocument.Send = DateTime.UtcNow;
+            await jobRepository.SendDocument(sendDocument, cancellationToken);
+            await jobRepository.RemoveProcessedDocument(processedDocument.Id, cancellationToken);
+            logger.FinishedSendingDocumentInformation(documentId, processedDocument.JobId);
         }
         catch (Exception exception)
         {
             var failedDocument = new FailedDocument()
             {
-                Document = inputDocument,
+                Document = processedDocument,
                 Errors = new List<string>(),
-                Id = inputDocument.Id,
+                Id = processedDocument.Id,
                 Failed = DateTime.UtcNow,
-                DocumentPriority = inputDocument.DocumentPriority,
-                JobId = jobId,
-                QueueId = inputDocument.QueueId,
-                QueuePriority = inputDocument.QueuePriority,
-                Received = inputDocument.Received,
-                ScheduleSendDate = inputDocument.ScheduleSendDate,
-                TargetType = inputDocument.TargetType
+                DocumentPriority = processedDocument.DocumentPriority,
+                JobId = processedDocument.JobId,
+                QueueId = processedDocument.QueueId,
+                QueuePriority = processedDocument.QueuePriority,
+                Received = processedDocument.Received,
+                ScheduleSendDate = processedDocument.ScheduleSendDate,
+                TargetType = processedDocument.TargetType
             };
-            failedDocument.Errors.Add($"Processing job failed {exception.GetType().Name} {exception.Message}");
+            failedDocument.Errors.Add($"Sending document failed {exception.GetType().Name} {exception.Message}");
 
             await jobRepository.FailDocument(failedDocument, cancellationToken);
-            await jobRepository.RemoveProcessingJob(jobId, cancellationToken);
-            logger.FinishedProcessingDocumentError(jobId, exception);
+            await jobRepository.RemoveProcessedDocument(processedDocument.Id, cancellationToken);
+            logger.FinishedSendingDocumentError(documentId, processedDocument.JobId, exception);
         }
     }
 

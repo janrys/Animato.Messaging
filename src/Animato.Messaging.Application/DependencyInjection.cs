@@ -32,6 +32,7 @@ public static class DependencyInjection
         services.AddSingleton<IAuthorizationService, StaticMapAuthorizationService>();
         services.AddSingleton<IApplicationEventService, ApplicationEventService>();
         services.AddSingleton<IProcessDocumentService, ProcessDocumentService>();
+        services.AddSingleton<ISendDocumentService, SendDocumentService>();
         return services;
     }
 }

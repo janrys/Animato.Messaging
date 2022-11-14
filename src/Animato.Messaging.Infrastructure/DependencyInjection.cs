@@ -59,6 +59,7 @@ public static class DependencyInjection
 
     private static IServiceCollection AddDocumentSenders(this IServiceCollection services)
     {
+        services.AddSingleton<IDocumentSender, LongRunningDebugDocumentSender>();
         services.AddSingleton<IDocumentSenderFactory, InMemoryDocumentSenderFactory>();
         return services;
     }

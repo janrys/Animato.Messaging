@@ -7,19 +7,21 @@ public class SendDocument : BaseDocument
     public ProcessorId ProcessorId { get; set; }
     public string FilePath { get; set; }
 
-    public static SendDocument Create(InputDocument inputDocument)
+    public static SendDocument Create(ProcessedDocument processedDocument)
         => new()
         {
-            DocumentPriority = inputDocument.DocumentPriority,
+            DocumentPriority = processedDocument.DocumentPriority,
             FilePath = "",
-            Id = inputDocument.Id,
-            JobId = inputDocument.JobId,
-            ProcessorId = inputDocument.ProcessorId,
-            QueueId = inputDocument.QueueId,
-            QueuePriority = inputDocument.QueuePriority,
-            Received = inputDocument.Received,
-            ScheduleSendDate = inputDocument.ScheduleSendDate,
-            TargetType = inputDocument.TargetType,
+            Id = processedDocument.Id,
+            JobId = processedDocument.JobId,
+            ProcessorId = processedDocument.ProcessorId,
+            QueueId = processedDocument.QueueId,
+            QueuePriority = processedDocument.QueuePriority,
+            Received = processedDocument.Received,
+            ScheduleSendDate = processedDocument.ScheduleSendDate,
+            TargetType = processedDocument.TargetType,
+            Processed = processedDocument.Processed,
+            TargetId = processedDocument.TargetId,
         };
 }
 
